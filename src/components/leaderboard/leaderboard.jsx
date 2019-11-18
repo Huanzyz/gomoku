@@ -49,7 +49,7 @@ class Leaderboard extends Component {
                         color="#F3C522"
                         before="/images/refresh.svg"
                         after="/images/white-refresh.svg"
-                        loading={loading.toString()}
+                        loading={loading}
                         onClick={this.handleRefresh} 
                     />
                 </TitleWrapper>

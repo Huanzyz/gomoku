@@ -11,3 +11,6 @@ export function getRandomRoomAvatar(){
     const index = Math.floor(Math.random()*13);
     return `/images/r${index}.svg`;
 }
+export function getFormattedStringForPoints(points){
+    return points.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import styled,{keyframes,css} from 'styled-components'
-import {getRandomRoomAvatar} from '../../utils/utils'
+import {getFormattedStringForPoints} from '../../utils/utils'
 
 const bounce = keyframes`
     0% {
@@ -52,6 +52,12 @@ const SubWrapper = styled.div`
     padding: 0 2rem;
     width: 100%;
 `
+const TinyWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+`
 const Info = styled.div`
     display: flex;
     flex-direction: column;
@@ -67,30 +73,44 @@ const Host = styled.span`
 const Point = styled.div`
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
+    width: 10rem;
+    margin-right: 3rem;
 `
 const Image = styled.img`
     width: 2rem;
     height: 2rem;
+    visibility: ${props => props.src == "none" ? "hidden" : "visible"};
 `
 class Room extends Component {
     render() {
+        const{
+            roomID, 
+            avatar,
+            isLock,
+            roomName,
+            host,
+            points,
+            onOpen
+        } = this.props
         return (
-            <MainWrapper onClick={() => this.props.onOpen(1)}>
+            <MainWrapper onClick={() => onOpen(2, roomID, isLock)}>
                 <AvatarWrapper>
-                    <Avatar src={process.env.PUBLIC_URL+ getRandomRoomAvatar()}></Avatar>
+                    <Avatar src={process.env.PUBLIC_URL+ `/images/r${avatar}.svg`}></Avatar>
                 </AvatarWrapper>
                 <SubWrapper>
                     <Info>
-                        <Text>Let's chill!!!!</Text>
-                        <Host>Host: Username</Host>
+                        <Text>{roomName}</Text>
+                        <Host>Host: {host}</Host>
                     </Info>
+                    <TinyWrapper>
                     <Point>
                         <Image src={process.env.PUBLIC_URL + '/images/diamond.svg'}></Image>
-                        <Text style={{ marginLeft: '1rem' }}>1.000</Text>
+                        <Text> {getFormattedStringForPoints(points)}</Text>
                     </Point>
-                    <Image src={process.env.PUBLIC_URL + '/images/lock.svg'}></Image>
+                    <Image src={isLock? process.env.PUBLIC_URL + '/images/lock.svg': 'none'}></Image>
+                    </TinyWrapper>
                 </SubWrapper>
             </MainWrapper>
         )

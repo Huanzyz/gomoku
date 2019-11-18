@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import Main from './main'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { getRandomColor } from '../utils/utils'
@@ -14,10 +13,6 @@ import Modal from '../components/modal/modal'
 
 const MainWrapper = styled.div`
     width: 100vw;
-    height: 100vh;
-    position: absolute;
-    top: 0;
-    left: 0;
 `
 const Header = styled.div`
     padding: 0.75rem 8.75rem;
@@ -41,7 +36,6 @@ const LogoWrapper = styled.div`
     justify-content: flex-start;
     align-items: center;
 `
-
 const Section = styled.div`
     position: relative;
 `
@@ -78,24 +72,73 @@ const GameRoom = styled.div`
     justify-content: space-between;
 `
 class Dashboard extends Component {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
-            showModal: true,
-            typeOfModal: 1,
+            //Data for modal
+            roomID: "",
+            password: "",
+            roomName: "",
+            betPoints: 0,
+            error: false,
+            isLock: true,
+            alert: {
+                title: "",
+                detail: ""
+            },
+            //
+            showModal: false,
+            typeOfModal: 1
         }
     }
-    handleOpenModal = (type) => {
+    handleRoomID = (e) => {
+        this.setState({
+            roomID: e.target.value
+        })
+    }
+    handleRoomName = (e) => {
+        this.setState({
+            roomName: e.target.value
+        })
+    }
+    handleBetPoints = (e) => {
+        this.setState({
+            betPoints: e.target.value
+        })
+    }
+    handlePassword = (e) => {
+        this.setState({
+            password: e.target.value
+        })
+    }
+    handleOpenModal = (type, roomID, isLock) => {
+        if(isLock){
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${window.scrollY}px`;
+        }        
         this.setState({
             showModal: true,
-            type: type
-        })        
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${window.scrollY}px`;
+            typeOfModal: type,
+            roomID: roomID,
+            isLock: isLock
+        })
+
     }
-    handleCloseModal = () => {
+    handleCloseModal = () => {       
         this.setState({
-            showModal: false
+            roomID: "",
+            password: "",
+            roomName: "",
+            betPoints: 0,
+            error: false,
+            isLock: true,
+            alert: {
+                title: "",
+                detail: ""
+            },
+            //
+            showModal: false,
+            typeOfModal: 1
         })
         const scrollY = document.body.style.top;
         document.body.style.position = '';
@@ -103,41 +146,71 @@ class Dashboard extends Component {
         window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
     render() {
-        const {showModal, typeOfModal} = this.state;
+        const {
+            //Main data
+            roomID,
+            password,
+            roomName,
+            betPoints,
+            error,
+            isLock,
+            alert,
+            //
+            showModal,
+            typeOfModal
+        } = this.state;
         return (
-            <Main>
-                <MainWrapper>
-                    {showModal ? <Modal onClose={this.handleCloseModal} type={typeOfModal}/> : ''}
-                    <Header>
-                        <LogoWrapper>
-                            <Name>GOMOKU</Name>
-                            <Logo src={process.env.PUBLIC_URL + '/images/characters.svg'} />
-                        </LogoWrapper>
-                        <Link to="/login">
-                            <ExitButton
-                                color="#EB5757"
-                                before="/images/exit.svg"
-                                after="/images/white-exit.svg"
-                            />
-                        </Link>
-                    </Header>
-                    <Section>                        
-                        <SectionOne color={getRandomColor()}>
-                            <Profile />
-                        </SectionOne>
-                        <SectionTwo>
-                            <FooterImage src={process.env.PUBLIC_URL + '/images/footer.svg'} />
-                            <Leaderboard />
-                        </SectionTwo>
+            <MainWrapper>
+                <Modal
+                    //Main data
+                    roomID={roomID}
+                    password={password}
+                    roomName={roomName}
+                    betPoints={betPoints}
+                    isLock={isLock}
+                    error={error}
+                    alert={alert}
+                    typeOfModal={typeOfModal}
+                    //For input
+                    handleRoomID={this.handleRoomID}
+                    handlePassword={this.handlePassword}
+                    handleRoomName={this.handleRoomName}
+                    handleBetPoints={this.handleBetPoints}
+                    //For button
+                    onClose={this.handleCloseModal}
+                    //For redirecting
+                    showModal={showModal}
+                />
+                <Header>
+                    <LogoWrapper>
+                        <Name>GOMOKU</Name>
+                        <Logo src={process.env.PUBLIC_URL + '/images/characters.svg'} />
+                    </LogoWrapper>
+                    <Link to="/login">
+                        <ExitButton
+                            color="#EB5757"
+                            before="/images/exit.svg"
+                            after="/images/white-exit.svg"
+                        />
+                    </Link>
+                </Header>
+                <Section>
+                    <SectionOne color={getRandomColor()}>
+                        <Profile />
+                    </SectionOne>
+                    <SectionTwo>
+                        <FooterImage src={process.env.PUBLIC_URL + '/images/footer.svg'} />
+                        <Leaderboard />
+                    </SectionTwo>
+                    <div>
                         <GameRoom>
                             <DBTools onOpen={this.handleOpenModal}></DBTools>
                             <PerfectScrollbar>
-                                <ListRoom onOpen={this.handleOpenModal}/>
-                            </PerfectScrollbar>                            
-                        </GameRoom>
-                    </Section>                    
-                </MainWrapper>
-            </Main>
+                                <ListRoom onOpen={this.handleOpenModal} />
+                            </PerfectScrollbar>
+                        </GameRoom></div>
+                </Section>
+            </MainWrapper>
         )
     }
 }

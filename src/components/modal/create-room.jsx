@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import styled, {keyframes, css} from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
 import Input from '../input'
 import Button from '../button/btn'
 import { Redirect } from 'react-router-dom'
@@ -27,7 +27,7 @@ const InputWrapper = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    width: 20rem;
+    width: 25rem;
 `
 const Label = styled.span`
     font-family: Raleway-Medium;
@@ -77,7 +77,7 @@ const LoadingLogo = styled.div`
     background-image: url(/images/white-refresh.svg);
     animation: ${rotate} 1s linear infinite;
 `
-class JoinRoom extends Component {
+class CreateRoom extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -92,73 +92,78 @@ class JoinRoom extends Component {
     }
     render() {
         const { loading } = this.state
-        const { 
+        const {
             //Main data
-            roomID,
             password,
-            isLock,
+            roomName,
+            betPoints,
             error,
             alert,
-            typeOfModal,
             //For input
-            handleRoomID,
             handlePassword,
+            handleRoomName,
+            handleBetPoints,
             //For button
-            onClose,
-            //For redirecting
-            showModal
+            onClose
         } = this.props
         return (
             <MainWrapper>
-                {showModal && !isLock && <Redirect to='/play' />}
                 <ExitBTN src={process.env.PUBLIC_URL + '/images/close.svg'} onClick={onClose} />
-                <Title>Join room</Title>
+                <Title>Create room</Title>
                 <ContentWrapper>
                     <InputWrapper style={{ marginTop: "1rem" }}>
-                        {typeOfModal === 1 ?
-                            <React.Fragment>
-                                <Label>Room ID</Label>
-                                <div style={{ width: "13.75rem" }}>
-                                    <Input
-                                        name="roomID"
-                                        type="text"
-                                        value={roomID}
-                                        onChange={handleRoomID}
-                                        color="#494949"
-                                        error={error}
-                                    />
-                                </div>
-                            </React.Fragment>
-                            :
-                            <React.Fragment>
-                            <Label>Password</Label>
-                                <div style={{ width: "13.75rem" }}>
-                                    <Input
-                                        name="password"
-                                        type="password"
-                                        value={password}
-                                        onChange={handlePassword}
-                                        color="#494949"
-                                        error={error}
-                                    />
-                                </div>
-                            </React.Fragment>
-                        }
+                        <Label>Room's name</Label>
+                        <div style={{ width: "15rem" }}>
+                            <Input
+                                name="roomName"
+                                type="text"
+                                value={roomName}
+                                onChange={handleRoomName}
+                                color="#494949"
+                                error={error}
+                            />
+                        </div>
+                    </InputWrapper>
+                    <InputWrapper style={{ margin: "1rem 0" }}>
+                        <Label>Bet points</Label>
+                        <div style={{ width: "15rem" }}>
+                            <Input
+                                name="betPoints"
+                                type="number"
+                                value={betPoints}
+                                onChange={handleBetPoints}
+                                color="#494949"
+                                error={error}
+                            />
+                        </div>
+                    </InputWrapper>
+                    <InputWrapper>
+                        <Label>Password</Label>
+                        <div style={{ width: "15rem" }}>
+                            <Input
+                                name="password"
+                                type="password"
+                                value={password}
+                                onChange={handlePassword}
+                                color="#494949"
+                                error={error}
+                            />
+                        </div>
                     </InputWrapper>
                     <Alert error={error}>
-                        <b>{alert.title}</b><br/>
+                        <b>{alert.title}</b><br />
                         {alert.detail}
                     </Alert>
                 </ContentWrapper>
-                <div style={{ marginTop: '2rem'}}>
+                <div style={{ marginTop: '2rem' }}>
                     <Button
                         color="#fff"
                         border="#494949"
                         bg="#494949"
                         onClick={this.toggleLoading}
                     >
-                        {!loading?<Text>Join</Text>:
-                        <LoadingLogo/>}
+                        {!loading ? <Text>Join</Text> :
+                            <LoadingLogo />}
                     </Button>
                 </div>
             </MainWrapper>
@@ -166,4 +171,4 @@ class JoinRoom extends Component {
     }
 }
 
-export default JoinRoom
+export default CreateRoom

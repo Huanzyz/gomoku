@@ -33,6 +33,7 @@ class DBTools extends Component{
     }
     render(){
         const {loading} = this.state;
+        const {onOpen} = this.props;
         return(
             <MainWrapper>
                 <Name>Game Rooms</Name>
@@ -41,13 +42,13 @@ class DBTools extends Component{
                         color="#0772BB"
                         before="/images/refresh.svg"
                         after="/images/white-refresh.svg"
-                        loading={loading.toString()}
+                        loading={loading}
                         onClick={this.handleRefresh} 
                     />
                     <div style={{margin: '0 1rem'}}>
-                        <Button border="#494949" bg="#fff" color="#494949">Join Room</Button>
+                        <Button border="#494949" bg="#fff" color="#494949" onClick={() => onOpen(1,"",true)}>Join Room</Button>
                     </div>
-                    <Button border="#494949" bg="#494949" color="#fff">Create Room</Button>
+                    <Button border="#494949" bg="#494949" color="#fff" onClick={() => onOpen(3,"", true)}>Create Room</Button>
                 </ButtonWrapper>
             </MainWrapper>
         )

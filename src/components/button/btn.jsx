@@ -18,9 +18,9 @@ const ButtonWrapper = styled.div`
 `
 class Button extends Component{
     render(){
-        const {border, bg, color} = this.props
+        const {border, bg, color, onClick} = this.props
         return(
-            <ButtonWrapper border={border} bg={bg} color={color}>
+            <ButtonWrapper border={border} bg={bg} color={color} onClick={onClick}>
                 {this.props.children}
             </ButtonWrapper>
         )
