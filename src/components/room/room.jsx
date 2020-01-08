@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import styled,{keyframes,css} from 'styled-components'
 import {getFormattedStringForPoints} from '../../utils/utils'
+import { modal_open } from '../../actions/modal'
+import { connect } from 'react-redux'
 
 const bounce = keyframes`
     0% {
@@ -29,13 +31,12 @@ const MainWrapper = styled.div`
 `
 const AvatarWrapper = styled.div`
     height: 6rem;
-    width: 8rem;
+    width: 10rem;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     border-radius: 10px 0px 0px 10px;
-    background-color: #494949;
 `
 const Avatar = styled.img`
     height: 6rem;
@@ -49,7 +50,7 @@ const SubWrapper = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 0 2rem;
+    padding: 0 2rem 0 1rem;
     width: 100%;
 `
 const TinyWrapper = styled.div`
@@ -92,10 +93,10 @@ class Room extends Component {
             roomName,
             host,
             points,
-            onOpen
+            openModal
         } = this.props
         return (
-            <MainWrapper onClick={() => onOpen(2, roomID, isLock)}>
+            <MainWrapper onClick={() => openModal(2, roomID, isLock)}>
                 <AvatarWrapper>
                     <Avatar src={process.env.PUBLIC_URL+ `/images/r${avatar}.svg`}></Avatar>
                 </AvatarWrapper>
@@ -116,5 +117,10 @@ class Room extends Component {
         )
     }
 }
-
-export default Room
+const mapDispatchToProps = dispatch => ({
+    openModal: (type, roomID, isLock) => dispatch(modal_open(type, roomID, isLock))
+})
+export default connect(
+    null,
+    mapDispatchToProps
+)(Room)

@@ -3,7 +3,11 @@ import Main from './main'
 import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
 import {Link as LinkRouter, Redirect} from 'react-router-dom'
-import Input from '../components/input'
+import Input from '../components/input';
+import { clearError, receiveError } from "../actions/user";
+import { connect } from "react-redux";
+import {isEmptyString, setUsernameToStorage, setJwtToStorage} from '../utils/utils'
+import api from '../api/api'
 
 const FormWrapper = styled.div`
     border: 3px solid #E0E0E0;
@@ -85,37 +89,57 @@ class Login extends Component {
         this.state = {
             redirectToReferrer: false,  
             usernameInput : "",
-            passwordInput: "",
-            error: false,
-            alert: {
-                title: "",
-                detail: ""
-            }
+            passwordInput: ""
         }
-    }    
+    }  
 
     handleUsernameInput = e => {
+        this.props.clearError();
         this.setState({
-            usernameInput: e.target.value
+            usernameInput: e.target.value            
         })
     }
     handlePasswordInput = e => {
+        this.props.clearError();
         this.setState({
             passwordInput: e.target.value
         })
     }
-    alert = () => {
-        let {title, detail} = this.state.alert;
-        let {error} = this.state
-        title =  title === "" ? "Login failed!" : "";
-        detail =  detail === "" ? "Please check your input again ..." : "";
-        error = !error;
-        this.setState({
-            alert:{
-                title, detail
-            },
-            error
-        })
+
+    checkInput = () => {
+        const {usernameInput, passwordInput} = this.state
+        if(isEmptyString(usernameInput) || isEmptyString(passwordInput)){
+            this.props.setError({
+                title: "Invalid input!",
+                detail: "Please check your input again..."                
+            })
+            return false;
+        }
+        return true;
+    }
+    handleSubmit = (e) => {
+        e.preventDefault()
+        const {usernameInput, passwordInput} = this.state
+        if(this.checkInput()){
+            api.post('/auth', {
+                username: usernameInput,
+                password: passwordInput
+            })
+            .then(res => {
+                setUsernameToStorage(res.data.user.username)
+                setJwtToStorage(res.data.token)
+                this.props.saveUserInfo(res.data.user)
+                this.setState({
+                    redirectToReferrer: true
+                })
+            })
+            .catch(err => {
+                this.props.setError({
+                    title: err.response.data.title,
+                    detail: err.response.data.detail                    
+                })
+            })
+        }        
     }
     render() {
         const {from} = this.props.location.state || {from: {pathname: "/"}};
@@ -125,7 +149,14 @@ class Login extends Component {
             return <Redirect to={from} />
         }
 
-        let {usernameInput, passwordInput, alert, error} = this.state;
+        const {
+            usernameInput, 
+            passwordInput
+        } = this.state;
+        const {
+            error,
+            alert
+        } = this.props
         return (
             <Main>
                 <Row noGutters='true' className='min-vh-100 flex-center'>
@@ -134,7 +165,7 @@ class Login extends Component {
                             <Col md="5">
                                 <FormWrapper>
                                     <FormLabel>Account Login</FormLabel>
-                                    <form>
+                                    <form onSubmit={this.handleSubmit}>
                                         <InputGroup>
                                             <InputLabel>Username</InputLabel>
                                             <Input 
@@ -163,8 +194,7 @@ class Login extends Component {
                                         <Button
                                             className="btn-block"
                                             variant="primary"
-                                            onClick={this.alert}
-                                            type="button"
+                                            type="submit"
                                         >
                                             Log in
                                         </Button>
@@ -186,5 +216,13 @@ class Login extends Component {
         )
     }
 }
+const mapStateToProps = state => ({
+    error: state.user.error,
+    alert: state.user.alert
+})
+const mapDispatchToProps = dispatch => ({
+    setError: alert => dispatch(receiveError(alert)),
+    clearError: () => dispatch(clearError())
+})
 
-export default Login
+export default connect(mapStateToProps, mapDispatchToProps)(Login)

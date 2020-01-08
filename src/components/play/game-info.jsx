@@ -91,7 +91,7 @@ class GameInfo extends Component{
                 <SubWrapper>
                     <Result style={{marginBottom: "3.8rem"}}>1</Result>
                     <AvatarWrapper>
-                        <RightAvatar src={process.env.PUBLIC_URL + '/images/a2.svg'}/>
+                        <RightAvatar src={process.env.PUBLIC_URL + '/images/noname.svg'}/>
                         <CheckWrapper style={{right: '0'}}>
                             <X width="3rem" height="3rem" color="#EB5757"/>
                         </CheckWrapper>

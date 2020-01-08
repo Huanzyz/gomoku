@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components'
+import { rankString, rateString, formatNumber, shortenName } from '../utils/utils'
+import { get_user_info } from '../actions/user'
+import { connect } from 'react-redux'
 
 const MainWrapper = styled.div`
     display: flex;
@@ -9,19 +12,20 @@ const MainWrapper = styled.div`
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    left: 8.75rem;
+    padding-bottom: 2.5rem;
 `
 const Avatar = styled.div`
     height: 10rem;
     width: 10rem;
     border-radius: 50%;
-    background-image: url('/images/a1.svg');
+    background-image: ${props => `url(${props.url})`};
     background-repeat:no-repeat;
     background-position: center center;
     background-size: contain;
     box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.46);
     background-color: white;
     margin-right: 2rem;
+    position: relative;
 `
 const SubWrapper = styled.div`
     display: flex;
@@ -46,33 +50,54 @@ const Info = styled.span`
 const Username = styled.span`
     font-size: 1.875rem;
     color: white;
-    margin-top: 1.875rem;
+    position: absolute;
+    bottom: 0;
+    right: 50%;
+    bottom: -3.875rem;
+    right: 50%;
+    transform: translateX(60%);
+    width: 100%;
 `
 class Profile extends Component {
     render() {
+        const {
+            user
+        } = this.props
+        let countWin = parseInt(user.countWin);
+        let countTotal = countWin + parseInt(user.countDraw)+ parseInt(user.countLoose);
         return (
             <MainWrapper>
                 <SubWrapper>
-                    <Avatar />
+                    <Avatar url={user.avatar}>
+                        <Username>{shortenName(user.username)}</Username>
+                    </Avatar>
                     <InfoWrapper>
                         <SubWrapper>
                             <Image src={process.env.PUBLIC_URL + '/images/crown.svg'}></Image>
-                            <Info>1st</Info>
+                            <Info>{rankString(user.rank)}</Info>
                         </SubWrapper>
                         <SubWrapper style={{ margin: '1.5rem 0rem' }}>
                             <Image src={process.env.PUBLIC_URL + '/images/swords.svg'}></Image>
-                            <Info>32.22%</Info>
+                            <Info>{rateString(countWin/countTotal)}</Info>
                         </SubWrapper>
                         <SubWrapper>
                             <Image src={process.env.PUBLIC_URL + '/images/diamond.svg'}></Image>
-                            <Info>10.000 pts</Info>
+                            <Info>{formatNumber(parseInt(user.point))} pts</Info>
                         </SubWrapper>
                     </InfoWrapper>
                 </SubWrapper>
-                <Username>Username</Username>
             </MainWrapper>
         )
     }
 }
+const mapStateToProps = state => ({
+    user: state.user
+})
+const mapDispatchToProps = dispatch => ({
+    getUserInfo: (id) => dispatch(get_user_info(id))
+})
 
-export default Profile;
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Profile)

@@ -4,6 +4,10 @@ import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
 import {Link as LinkRouter, Redirect} from 'react-router-dom'
 import Input from '../components/input'
+import { receiveError, clearError } from '../actions/user';
+import { connect } from "react-redux";
+import {isEmptyString, setUsernameToStorage, setJwtToStorage} from '../utils/utils'
+import api from '../api/api'
 
 const FormWrapper = styled.div`
     border: 3px solid #E0E0E0;
@@ -85,42 +89,69 @@ class Register extends Component {
             redirectToReferrer: false, 
             usernameInput : "",
             passwordInput: "",
-            confirmPasswordInput: "",
-            error: false,
-            alert: {
-                title: "",
-                detail: ""
-            }
+            confirmPasswordInput: ""
         }
     }    
 
     handleUsernameInput = e => {
+        this.props.clearError()
         this.setState({
             usernameInput: e.target.value
         })
     }
     handlePasswordInput = e => {
+        this.props.clearError()
         this.setState({
             passwordInput: e.target.value
         })
     }
     handleConfirmPasswordInput = e => {
+        this.props.clearError()
         this.setState({
             confirmPasswordInput: e.target.value
         })
     }
-    alert = () => {
-        let {title, detail} = this.state.alert;
-        let {error} = this.state
-        title =  title === "" ? "Login failed!" : "";
-        detail =  detail === "" ? "Please check your input again ..." : "";
-        error = !error;
-        this.setState({
-            alert:{
-                title, detail
-            },
-            error
-        })
+    checkInput = () => {
+        const {usernameInput, passwordInput, confirmPasswordInput} = this.state
+        if(isEmptyString(usernameInput) || isEmptyString(passwordInput) || isEmptyString(confirmPasswordInput)){
+            this.props.setError({
+                title: 'Invalid input!',
+                detail: 'Please check your input again...'
+            })
+            return false
+        }
+        if(passwordInput !== confirmPasswordInput){
+            this.props.setError({
+                title: `Confirm password doesn't match`,
+                detail: 'Please check your input again...'
+            })
+            return false
+        }
+        return true
+    }
+    handleSubmit = e => {
+        e.preventDefault()
+        if(this.checkInput()){
+            const {usernameInput, passwordInput} = this.state
+            api.post('/register', {
+                username: usernameInput,
+                password: passwordInput
+            })
+            .then(res => {
+                setUsernameToStorage(res.data.user.username)
+                setJwtToStorage(res.data.token)
+                this.props.saveUserInfo(res.data.user)
+                this.setState({
+                    redirectToReferrer: true
+                })
+            })
+            .catch(err => {
+                this.props.setError({
+                    title: err.response.data.title,
+                    detail: err.response.data.detail
+                })
+            })
+        }
     }
     render() {
         const {redirectToReferrer} = this.state;
@@ -128,7 +159,16 @@ class Register extends Component {
         if(redirectToReferrer === true) {
             return <Redirect to="/" />
         }
-        let {usernameInput, passwordInput, confirmPasswordInput, alert, error} = this.state;
+        let {
+            usernameInput, 
+            passwordInput, 
+            confirmPasswordInput
+        } = this.state;
+
+        let {
+            error,
+            alert
+        } = this.props
         
         return (
             <Main>
@@ -138,13 +178,13 @@ class Register extends Component {
                             <Col md="5">
                                 <FormWrapper>
                                     <FormLabel>Register</FormLabel>
-                                    <form>
+                                    <form onSubmit={this.handleSubmit}>
                                         <InputGroup>
                                             <InputLabel>Username</InputLabel>
                                             <Input
                                                 name="username"
                                                 type="text"
-                                                value = {this.state.usernameInput}
+                                                value = {usernameInput}
                                                 onChange = {this.handleUsernameInput}
                                                 error={error}
                                                 color="#18A09C"
@@ -155,7 +195,7 @@ class Register extends Component {
                                             <Input
                                                 name="password"
                                                 type="password"
-                                                value = {this.state.passwordInput}
+                                                value = {passwordInput}
                                                 onChange = {this.handlePasswordInput}
                                                 error={error}
                                                 color="#18A09C"
@@ -166,7 +206,7 @@ class Register extends Component {
                                             <Input
                                                 name="confirm-pass"
                                                 type="password"
-                                                value = {this.state.confirmPasswordInput}
+                                                value = {confirmPasswordInput}
                                                 onChange = {this.handleConfirmPasswordInput}
                                                 error={error}
                                                 color="#18A09C"
@@ -179,11 +219,10 @@ class Register extends Component {
                                             className="btn-block"
                                             variant="primary"
                                             onClick={this.alert}
-                                            type="button"
+                                            type="submit"
                                         >
                                             Sign up
                                         </Button>
-
                                     </form>
                                 </FormWrapper>
                             </Col>
@@ -203,4 +242,15 @@ class Register extends Component {
     }
 }
 
-export default Register
+const mapStateToProps = state => ({
+    error: state.user.error,
+    alert: state.user.alert
+})
+const mapDispatchToProps = dispatch => ({
+    setError: alert => dispatch(receiveError(alert)),
+    clearError: () => dispatch(clearError())
+})
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Register)

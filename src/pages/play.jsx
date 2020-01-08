@@ -15,7 +15,7 @@ const Header = styled.div`
     padding: 0.75rem 8.75rem;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 `
 const Name = styled.span`
@@ -35,7 +35,7 @@ const LogoWrapper = styled.div`
 const ContentWrapper = styled.div`
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     padding: 1.125rem 8.75rem 4.125rem 8.75rem;
 `
@@ -56,6 +56,15 @@ const Line = styled.div`
     width: 100%;
     height: 3px;
 `
+const WidthLimitContainer = styled.div`
+    width: 73rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    height: 100%;
+`
 class Play extends Component{
     constructor(props){
         super(props)
@@ -68,7 +77,8 @@ class Play extends Component{
             tileSize: '2rem',
             tiles: [],
             lock: false,
-            turn: 1
+            turn: 1,
+            waiting: true
         } 
     }
     changeTurn = () => {
@@ -84,8 +94,8 @@ class Play extends Component{
         }
         this.setState({
             tiles,
-            lastTick: id
-
+            lastTick: id,
+            time: 15
         })        
     }
     initTiles = (rows, cols) => {
@@ -93,24 +103,27 @@ class Play extends Component{
         for(let i = 0;i < rows*cols; i++){
             tiles.push({value: 0})
         }
+        clearInterval(this.timeID);
         this.setState({
             tiles
         })
     }
     componentDidMount(){
-        let {tiles, rows, cols} = this.state
+        let {tiles, rows, cols, waiting} = this.state
         if(tiles.length === 0){            
             this.initTiles(rows, cols);
         }
-        // this.timeID = setInterval(()=>{
-        //     if(this.state.time !== 0){
-        //         this.setState(prevState => {
-        //             return({
-        //                 time: prevState.time - 1
-        //             })
-        //         })
-        //     }
-        // },1000)
+        if(!waiting){
+            this.timeID = setInterval(()=>{
+                if(this.state.time !== 0){
+                    this.setState(prevState => {
+                        return({
+                            time: prevState.time - 1
+                        })
+                    })
+                }
+            },1000)
+        }
     }
     componentWillMount(){
         clearInterval(this.timeID);
@@ -121,40 +134,44 @@ class Play extends Component{
         return(
             <MainWrapper>
                 <Header>
-                    <LogoWrapper>
-                        <Name>GOMOKU</Name>
-                        <Logo src={process.env.PUBLIC_URL + '/images/characters.svg'} />
-                    </LogoWrapper>
-                    <Link to="/login">
-                        <ImageBTN
-                            color="#EB5757"
-                            before="/images/exit.svg"
-                            after="/images/white-exit.svg"
-                        />
-                    </Link>
+                    <WidthLimitContainer>
+                        <LogoWrapper>
+                            <Name>GOMOKU</Name>
+                            <Logo src={process.env.PUBLIC_URL + '/images/characters.svg'} />
+                        </LogoWrapper>
+                        <Link to="/login">
+                            <ImageBTN
+                                color="#EB5757"
+                                before="/images/exit.svg"
+                                after="/images/white-exit.svg"
+                            />
+                        </Link>
+                    </WidthLimitContainer>
                 </Header>
                 <ContentWrapper>
-                    <SectionOne>
-                        <GameBar />
-                        <Line />
-                        {tiles.length!== 0 &&
-                        <Board 
-                            tiles={tiles}
-                            rows={rows}
-                            cols={cols}
-                            tiles={tiles}
-                            lastTick={lastTick}
-                            tileSize={tileSize}
-                            onTick={this.handleTick}
-                        />
-                        }
-                        <Line />
-                        <TimeProgress max={max} time={time} />
-                    </SectionOne>
-                    <SectionTwo>
-                        <GameInfo />
-                        <Chat />
-                    </SectionTwo>
+                    <WidthLimitContainer>
+                        <SectionOne>
+                            <GameBar />
+                            <Line />
+                            {tiles.length!== 0 &&
+                                <Board 
+                                    tiles={tiles}
+                                    rows={rows}
+                                    cols={cols}
+                                    tiles={tiles}
+                                    lastTick={lastTick}
+                                    tileSize={tileSize}
+                                    onTick={this.handleTick}
+                                />
+                            }
+                            <Line />
+                            <TimeProgress max={max} time={time} />
+                        </SectionOne>
+                        <SectionTwo>
+                            <GameInfo />
+                            <Chat />
+                        </SectionTwo>
+                    </WidthLimitContainer>
                 </ContentWrapper>
             </MainWrapper>
         )

@@ -8,6 +8,8 @@ const MainWrapper = styled.div`
     justify-content: space-between;
     align-items: center; 
     padding: 1.5rem; 
+    z-index: 4;
+    background-color: white;
 `
 const BetPointsWrapper= styled.div`
     display: flex;

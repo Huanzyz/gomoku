@@ -1,7 +1,11 @@
 import React, { Component } from 'react'
-import styled,{css, keyframes} from 'styled-components'
 import Item from './leaderboard-item'
 import Button from '../button/btn-refresh'
+import styled from 'styled-components'
+import {connect} from 'react-redux'
+import { get_rank_info } from '../../actions/rank'
+import { rankString } from '../../utils/utils'
+import { compose } from 'redux'
 
 const MainWrapper = styled.div`
     display: flex;
@@ -11,8 +15,6 @@ const MainWrapper = styled.div`
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    left: 8.75rem;
-
     width: auto;
 `
 const TitleWrapper = styled.div`
@@ -22,25 +24,22 @@ const TitleWrapper = styled.div`
     align-items: center;
     margin-bottom: 1.25rem;
     width: 100%;
+    min-width: 273px;
 `
 const Title = styled.span`
     font-family: Gochi-Hand;
     font-size: 2.624rem;
 `
 class Leaderboard extends Component { 
-    constructor(props){
-        super(props);
-        this.state = {
-            loading: false
-        }
-    }  
     handleRefresh = () => {
-        this.setState(prevState => ({
-            loading : !prevState.loading
-        }))
+        this.props.getRankInfo();
     }
     render() { 
-        const {loading} = this.state;
+        const {
+            ranking,
+            loading
+        } = this.props
+        console.log(ranking)
         return (
             <MainWrapper>
                 <TitleWrapper>
@@ -53,14 +52,21 @@ class Leaderboard extends Component {
                         onClick={this.handleRefresh} 
                     />
                 </TitleWrapper>
-                <Item rank="1" username="Username"/>
-                <Item rank="2" username="Username"/>
-                <Item rank="3" username="Username"/>
-                <Item rank="4" username="Username"/>
-                <Item rank="5" username="Username"/>
+                {
+                    ranking.map((e, index) => <Item rank={rankString(index + 1)} username={e.username} point={e.points}/>)
+                }
             </MainWrapper>
         )
     }
 }
-
-export default Leaderboard;
+const mapStateToProps = state => ({
+    ranking: state.rank.data,
+    loading: state.rank.loading
+})
+const mapDispatchToProps = dispatch => ({
+    getRankInfo: () => dispatch(get_rank_info())
+})
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Leaderboard)

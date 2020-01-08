@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import styled from 'styled-components'
 import Tile from './tile'
+import Result from './result'
 
 // const Tile = styled.div`
 //     cursor: pointer; 
@@ -14,7 +15,24 @@ import Tile from './tile'
 const Row =  styled.div`
     display: flex;
 `
+const Wrapper = styled.div`
+    position: relative;
+`
+const BackDrop = styled.div`
+    background: rgba(130, 130, 130, 0.2);
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 3;
+`
 class Board extends Component{
+    state={
+        waiting: false,
+        win: true,
+        end: false
+    }
     generateRow(rowIndex){
         const {tiles, lastTick, tileSize, onTick} = this.props
         let cols = []
@@ -45,13 +63,19 @@ class Board extends Component{
         }
         return rows;
     }
+    handleShowResult = () => {
+        this.setState(prevState => ({
+            end: !prevState.end
+        }))
+    }
     render(){
+        const {waiting, win, end} = this.state
         return(
-            <div style={{
-                
-            }}>
+            <Wrapper className="board" onClick={this.handleShowResult}>
+                <Result win={win} end={end}/>
+                {waiting && <BackDrop />}
                 {this.generateBoard()}
-            </div>
+            </Wrapper>
         )
     }
 }

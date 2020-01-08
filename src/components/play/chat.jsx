@@ -71,9 +71,17 @@ const Button = styled.div`
         text-decoration: underline;
     }
 `
+const BackDrop = styled.div`
+    background: rgba(130, 130, 130, 0.2);
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+`
 class Chat extends Component {
     state = {
-        heightBody: 0,
+        waiting: true,
         chats: [
             {
                 content: 'hi! You ready?',
@@ -102,23 +110,22 @@ class Chat extends Component {
             },
         ]
     }
-    componentDidMount() {
-        // this.setState({
-        //     heightBody: document.querySelector("#body").clientHeight
-        // })
-    }
+
     render() {
-        const { chats } = this.state;
+        const { chats, waiting } = this.state;
         return (
             <MainWrapper>
-                <ChatTitle>Chat</ChatTitle>
+                {waiting && <BackDrop/>}
+                <ChatTitle>{waiting? 'Waiting...' : 'Chat' }</ChatTitle>
                 <ChatLogo />
                 <Body id="body">
+                    {!waiting &&
                     <PerfectScrollbar >
                         {chats.map((c, index) => (
                             <BubbleChat key={index} {...c} />
                         ))} 
                     </PerfectScrollbar>
+                    }
                 </Body>
                 <Line />
                 <InputWrapper>

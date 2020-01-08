@@ -19,7 +19,7 @@ class App extends Component {
                 timeout={600}
               >
                 <Switch location={location}>
-                  <Route path="/login" component={Login} />
+                  <Route path="/login" component={Login}/>
                   <Route path="/register" component={Register} />
                   <Route exact path="/" component={Dashboard} />
                   <Route path="/play" component={Play} />

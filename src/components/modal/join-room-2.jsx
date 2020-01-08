@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import styled, {keyframes, css} from 'styled-components'
 import Input from '../input'
 import Button from '../button/btn'
-import { Redirect } from 'react-router-dom'
-
+import { modal_close } from '../../actions/modal'
+import { connect } from 'react-redux'
 
 const MainWrapper = styled.div`
     background-color: #fff;
@@ -77,11 +77,12 @@ const LoadingLogo = styled.div`
     background-image: url(/images/white-refresh.svg);
     animation: ${rotate} 1s linear infinite;
 `
+//MODAL JOIN_ROOM: password, betPoints
 class JoinRoom extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            loading: false
+            password: ""
         }
     }
     toggleLoading = () => {
@@ -108,28 +109,16 @@ class JoinRoom extends Component {
             //For redirecting
             showModal
         } = this.props
+        const {
+            isShown,
+
+        } = this.props
         return (
             <MainWrapper>
-                {showModal && !isLock && <Redirect to='/play' />}
                 <ExitBTN src={process.env.PUBLIC_URL + '/images/close.svg'} onClick={onClose} />
                 <Title>Join room</Title>
                 <ContentWrapper>
                     <InputWrapper style={{ marginTop: "1rem" }}>
-                        {typeOfModal === 1 ?
-                            <React.Fragment>
-                                <Label>Room ID</Label>
-                                <div style={{ width: "13.75rem" }}>
-                                    <Input
-                                        name="roomID"
-                                        type="text"
-                                        value={roomID}
-                                        onChange={handleRoomID}
-                                        color="#494949"
-                                        error={error}
-                                    />
-                                </div>
-                            </React.Fragment>
-                            :
                             <React.Fragment>
                             <Label>Password</Label>
                                 <div style={{ width: "13.75rem" }}>
@@ -143,7 +132,6 @@ class JoinRoom extends Component {
                                     />
                                 </div>
                             </React.Fragment>
-                        }
                     </InputWrapper>
                     <Alert error={error}>
                         <b>{alert.title}</b><br/>
@@ -165,5 +153,16 @@ class JoinRoom extends Component {
         )
     }
 }
+const mapStateToProps = state => ({
+    roomID: state.modal.roomID,
+    isLock: state.modal.isLock,
+    type: state.modal.type
+})
+const mapDispatchToProps = dispatch => ({
+    closeModal: () => dispatch(modal_close())
+})
 
-export default JoinRoom
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(JoinRoom)
