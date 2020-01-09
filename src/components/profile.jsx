@@ -69,7 +69,7 @@ class Profile extends Component {
             <MainWrapper>
                 <SubWrapper>
                     <Avatar url={user.avatar}>
-                        <Username>{shortenName(user.username)}</Username>
+                        <Username>{shortenName(user.username, 11)}</Username>
                     </Avatar>
                     <InfoWrapper>
                         <SubWrapper>
@@ -82,7 +82,7 @@ class Profile extends Component {
                         </SubWrapper>
                         <SubWrapper>
                             <Image src={process.env.PUBLIC_URL + '/images/diamond.svg'}></Image>
-                            <Info>{formatNumber(parseInt(user.point))} pts</Info>
+                            <Info>{formatNumber(parseInt(user.points))} pts</Info>
                         </SubWrapper>
                     </InfoWrapper>
                 </SubWrapper>
@@ -91,7 +91,7 @@ class Profile extends Component {
     }
 }
 const mapStateToProps = state => ({
-    user: state.user
+    user: state.user.user
 })
 const mapDispatchToProps = dispatch => ({
     getUserInfo: (id) => dispatch(get_user_info(id))

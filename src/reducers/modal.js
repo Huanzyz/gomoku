@@ -1,7 +1,8 @@
 import {
     MODAL_OPEN,
     MODAL_CLOSE,
-    MODAL_ERROR
+    MODAL_ERROR,
+    MODAL_CLEAR_ERROR
 } from '../actions/modal'
 
 // 1: JOIN ROOM [Room's ID, Password]
@@ -11,7 +12,7 @@ const InitModal = () => ({
     isShown: false,
     type: 0,
     error: false,
-    errorInfor: {
+    errorInfo: {
         title: null,
         detail: null
     }
@@ -23,12 +24,7 @@ const modal = (state = InitModal(), action) => {
             return {
                 ...state,
                 isShown: true,
-                type: action.type,
-                error: false,
-                errorInfo: {
-                    title: null,
-                    detail: null
-                }
+                type: action.modalType
             }
         case MODAL_CLOSE:
             return {
@@ -47,7 +43,16 @@ const modal = (state = InitModal(), action) => {
                 ...state,
                 loading: false,
                 error: true,
-                errorDetail: action.error
+                errorInfo: action.error
+            }
+        case MODAL_CLEAR_ERROR:
+            return {
+                ...state,
+                error: false,
+                errorInfo: {
+                    title: null,
+                    detail: null
+                }
             }
         default:
             return state

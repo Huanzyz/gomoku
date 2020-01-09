@@ -31,15 +31,12 @@ const Title = styled.span`
     font-size: 2.624rem;
 `
 class Leaderboard extends Component { 
-    handleRefresh = () => {
-        this.props.getRankInfo();
-    }
     render() { 
         const {
             ranking,
-            loading
+            loading,
+            getRankInfo
         } = this.props
-        console.log(ranking)
         return (
             <MainWrapper>
                 <TitleWrapper>
@@ -48,12 +45,12 @@ class Leaderboard extends Component {
                         color="#F3C522"
                         before="/images/refresh.svg"
                         after="/images/white-refresh.svg"
-                        loading={loading}
-                        onClick={this.handleRefresh} 
+                        loading={loading ? 1 : 0}
+                        onClick={getRankInfo} 
                     />
                 </TitleWrapper>
                 {
-                    ranking.map((e, index) => <Item rank={rankString(index + 1)} username={e.username} point={e.points}/>)
+                    ranking.map((e, index) => <Item key={index} rank={rankString(index + 1)} username={e.username} point={e.points}/>)
                 }
             </MainWrapper>
         )

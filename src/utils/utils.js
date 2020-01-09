@@ -7,9 +7,9 @@ export function getRandomColor(){
     ]
     return palette[Math.floor(Math.random()*4)];
 }
-export function getRandomRoomAvatar(){
+export function getRandomNumber(){
     const index = Math.floor(Math.random()*13);
-    return `/images/r${index}.svg`;
+    return index
 }
 export function getFormattedStringForPoints(points){
     return points.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -66,8 +66,16 @@ export function rateString(num){
 export function formatNumber(num){
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
 }
-export function shortenName(name){
+export function shortenName(name, length){
     if(name.length > 10)
-        return name.slice(0,8) + "...";
+        return name.slice(0,length-3) + "...";
     return name;
+}
+export function getBodyHeight(){
+    var body = document.body,
+        html = document.documentElement
+
+    var height = Math.max( body.scrollHeight, body.offsetHeight, 
+                       html.clientHeight, html.scrollHeight, html.offsetHeight )
+    return height
 }

@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import Main from './main'
 import { Row, Col } from 'react-bootstrap'
-import styled from 'styled-components'
+import styled, {keyframes} from 'styled-components'
 import {Link as LinkRouter, Redirect} from 'react-router-dom'
 import Input from '../components/input';
-import { clearError, receiveError } from "../actions/user";
-import { connect } from "react-redux";
-import {isEmptyString, setUsernameToStorage, setJwtToStorage} from '../utils/utils'
+import { handle_login_user, user_clear_error } from "../actions/user";
+import { connect } from "react-redux"
 import api from '../api/api'
 
 const FormWrapper = styled.div`
@@ -49,6 +48,10 @@ const Button = styled.button`
     }
     transition: background-color 0.2s linear;
     margin-top: 2rem;
+    display: flex !important;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 `
 const InfoWrapper = styled.div`
     display: flex;
@@ -83,85 +86,92 @@ const Image = styled.img`
     height: 11rem;
     margin-top: 2rem;
 `
+const WidthLimitContainer = styled.div`
+    width: 73rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    height: 100%;
+`
+const MainWrapper = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+`
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+`
+const LoadingLogo = styled.div`
+    width: 1.5rem;
+    height: 1.5rem;
+    background-image: url(/images/white-refresh.svg);
+    animation: ${rotate} 1s linear infinite;
+`
 class Login extends Component {
     constructor(props){
         super(props);
         this.state = {
             redirectToReferrer: false,  
-            usernameInput : "",
-            passwordInput: ""
+            username: "",
+            password: ""
         }
     }  
 
     handleUsernameInput = e => {
-        this.props.clearError();
-        this.setState({
-            usernameInput: e.target.value            
-        })
+        if(this.props.loading !== true){
+            this.props.clearError()
+            this.setState({
+                username: e.target.value            
+            })
+        }
     }
     handlePasswordInput = e => {
-        this.props.clearError();
-        this.setState({
-            passwordInput: e.target.value
-        })
-    }
-
-    checkInput = () => {
-        const {usernameInput, passwordInput} = this.state
-        if(isEmptyString(usernameInput) || isEmptyString(passwordInput)){
-            this.props.setError({
-                title: "Invalid input!",
-                detail: "Please check your input again..."                
+        if(this.props.loading !== true){
+            this.props.clearError()
+            this.setState({
+                password: e.target.value
             })
-            return false;
         }
-        return true;
     }
     handleSubmit = (e) => {
         e.preventDefault()
-        const {usernameInput, passwordInput} = this.state
-        if(this.checkInput()){
-            api.post('/auth', {
-                username: usernameInput,
-                password: passwordInput
-            })
-            .then(res => {
-                setUsernameToStorage(res.data.user.username)
-                setJwtToStorage(res.data.token)
-                this.props.saveUserInfo(res.data.user)
-                this.setState({
-                    redirectToReferrer: true
-                })
-            })
-            .catch(err => {
-                this.props.setError({
-                    title: err.response.data.title,
-                    detail: err.response.data.detail                    
-                })
-            })
-        }        
+        const {username, password} = this.state
+        if(this.props.loading !== true){
+            this.props.handleLogin(username, password)      
+        }
     }
     render() {
         const {from} = this.props.location.state || {from: {pathname: "/"}};
-        const {redirectToReferrer} = this.state;
-        
+        const {redirectToReferrer} = this.state;        
         if(redirectToReferrer === true){
             return <Redirect to={from} />
         }
-
         const {
-            usernameInput, 
-            passwordInput
+            username, 
+            password
         } = this.state;
         const {
+            loading,
             error,
-            alert
+            errorInfo
         } = this.props
         return (
             <Main>
                 <Row noGutters='true' className='min-vh-100 flex-center'>
-                    <Col lg="8" className="py-3">
-                        <Row noGutters="true" className="h-100">
+                    <MainWrapper>
+                        <WidthLimitContainer>
+                        <Row noGutters="true" className="h-100 w-100">
                             <Col md="5">
                                 <FormWrapper>
                                     <FormLabel>Account Login</FormLabel>
@@ -171,7 +181,7 @@ class Login extends Component {
                                             <Input 
                                                 name="username" 
                                                 type="text" 
-                                                value={usernameInput}
+                                                value={username}
                                                 onChange={this.handleUsernameInput} 
                                                 error={error}
                                                 color="#0772B8"
@@ -182,21 +192,21 @@ class Login extends Component {
                                             <Input 
                                                 name="password" 
                                                 type="password" 
-                                                value={passwordInput}
+                                                value={password}
                                                 onChange={this.handlePasswordInput} 
                                                 error={error}
                                                 color="#0772B8"
                                                 />
                                         </InputGroup>
                                         <Alert error={error}>
-                                            <b>{alert.title}</b><br></br>{alert.detail}
+                                            <b>{errorInfo.title}</b><br></br>{errorInfo.detail}
                                         </Alert>
                                         <Button
                                             className="btn-block"
                                             variant="primary"
                                             type="submit"
                                         >
-                                            Log in
+                                           {loading ? <LoadingLogo /> : "Log in"}
                                         </Button>
                                     </form>
                                 </FormWrapper>
@@ -210,19 +220,21 @@ class Login extends Component {
                                 </InfoWrapper>
                             </Col>
                         </Row>
-                    </Col>
+                        </WidthLimitContainer>
+                    </MainWrapper>
                 </Row>
             </Main>
         )
     }
 }
 const mapStateToProps = state => ({
+    loading: state.user.loading,
     error: state.user.error,
-    alert: state.user.alert
+    errorInfo: state.user.errorInfo
 })
 const mapDispatchToProps = dispatch => ({
-    setError: alert => dispatch(receiveError(alert)),
-    clearError: () => dispatch(clearError())
+    handleLogin: (username, password) => dispatch(handle_login_user(username, password)),
+    clearError: () => dispatch(user_clear_error())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login)

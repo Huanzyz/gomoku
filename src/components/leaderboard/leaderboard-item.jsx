@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import { formatNumber } from '../../utils/utils'
+import { formatNumber, shortenName } from '../../utils/utils'
 
 const MainWrapper = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;       
+    align-items: center;    
+    width: 100%;   
 `
 const Rank = styled.span`
     font-family: Gochi-Hand;
@@ -27,8 +28,10 @@ class LeaderboardItem extends Component{
     render(){        
         return(
             <MainWrapper>
-                <Rank>{this.props.rank}</Rank>
-                <Username>{this.props.username}</Username>
+                <div>
+                    <Rank>{this.props.rank}</Rank>
+                    <Username>{shortenName(this.props.username, 10)}</Username>
+                </div>
                 <Point>{formatNumber(this.props.point)} pts</Point>
             </MainWrapper>
         )

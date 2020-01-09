@@ -7,24 +7,24 @@ import {
 const InitRank = () => ({
     data: [
         {
-            username: 'user',
+            username: 'Den Vau',
+            points: 1000000
+        },
+        {
+            username: 'VuDinhTrongThang',
+            points: 500000
+        },
+        {
+            username: 'SonTungMTP',
+            points: 450000
+        },
+        {
+            username: 'Justatee',
             points: 10000
         },
         {
-            username: 'user',
-            points: 10000
-        },
-        {
-            username: 'user',
-            points: 10000
-        },
-        {
-            username: 'user',
-            points: 10000
-        },
-        {
-            username: 'user',
-            points: 10000
+            username: 'MinMin123',
+            points: 9000
         }
     ],
     loading: false

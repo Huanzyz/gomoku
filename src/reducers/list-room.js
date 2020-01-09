@@ -9,52 +9,64 @@ import { getRandomColor } from '../utils/utils'
 const InitListRoom = () => ({
     data: [
         {
-            roomID: '4WhO7a',
-            points: 10000,
-            avatar: 5,
-            isLock: true,
+            id: '4WhO7a',
+            betPoints: 10000,
+            background: 5,
+            hasPassword: true,
             roomName: `Let's chill!!!`,
-            host: 'SuicideSquad123'
+            host: {
+                username: 'SuicideSquad123'
+            }
         },
         {
-            roomID: 'm5B11n',
-            points: 15000,
-            avatar: 10,
-            isLock: true,
+            id: 'm5B11n',
+            betPoints: 15000,
+            background: 10,
+            hasPassword: true,
             roomName: `Yooooooo =))`,
-            host: 'Zy3Pikachuuu'
+            host: {
+                username:'Zy3Pikachuuu'
+            }
         },
         {
-            roomID: 'b1UDXO',
-            points: 11000,
-            avatar: 2,
-            isLock: false,
+            id: 'b1UDXO',
+            betPoints: 11000,
+            background: 2,
+            hasPassword: false,
             roomName: `Heyahey <3`,
-            host: 'EiEiDenVau'
+            host: {
+                username:'EiEiDenVau'
+            }
         },
         {
-            roomID: '14ykbT',
-            points: 52000,
-            avatar: 0,
-            isLock: true,
+            id: '14ykbT',
+            betPoints: 52000,
+            background: 0,
+            hasPassword: true,
             roomName: `Hello from VN !!!`,
-            host: 'U23VNChampion'
+            host: {
+                username:'U23VNChampion'
+            }
         },
         {
-            roomID: '5ziCRU',
-            points: 12000,
-            avatar: 6,
-            isLock: false,
+            id: '5ziCRU',
+            betPoints: 12000,
+            background: 6,
+            hasPassword: false,
             roomName: `Challenge accepted !!!`,
-            host: 'MasterObiWan213'
+            host: {
+                username:'MasterObiWan213'
+            }
         },
         {
-            roomID: '8LnaoJ',
-            points: 90000,
-            avatar: 11,
-            isLock: false,
+            id: '8LnaoJ',
+            betPoints: 90000,
+            background: 11,
+            hasPassword: false,
             roomName: `Pho is the truth !!!`,
-            host: 'SGboiz2019'
+            host: {
+                username:'SGboiz2019'
+            }
         }
     ],
     loading: false,

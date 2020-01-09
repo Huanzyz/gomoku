@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import styled, { keyframes, css } from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import Input from '../input'
 import Button from '../button/btn'
-import { Redirect } from 'react-router-dom'
-
+import { connect } from 'react-redux'
+import { modal_close, modal_clear_error } from '../../actions/modal'
+import { handle_create_room } from '../../actions/room'
 
 const MainWrapper = styled.div`
     background-color: #fff;
@@ -81,34 +82,67 @@ class CreateRoom extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            loading: false
+            roomName: "",
+            betPoints: "",
+            password: ""
+            
         }
     }
-    toggleLoading = () => {
-        this.setState(prevState => ({
-            loading: !prevState.loading,
-            error: !prevState.error
-        }))
+    handleRoomNameInput = e => {
+        if(this.props.loading !== true){
+            this.props.clearError()
+            this.setState({
+                roomName: e.target.value
+            })
+        }
+        
     }
-    render() {
-        const { loading } = this.state
+    handleBetPointsInput = e => {
+        if(this.props.loading !== true){
+            this.props.clearError()
+            this.setState({
+                betPoints: e.target.value.replace(/\D/,'')
+            })
+        }
+    }
+    handlePasswordInput = e => {
+        if(this.props.loading !== true){
+            this.props.clearError()
+            this.setState({
+                password: e.target.value
+            })
+        }
+    }
+    handleClick = () => {
         const {
-            //Main data
-            password,
             roomName,
             betPoints,
+            password
+        } = this.state
+        const {
+            loading,
+            handleCreateRoom
+        } = this.props
+        if(loading !== true){
+            handleCreateRoom(roomName, betPoints, password)
+        }
+    }
+    render() {
+        const {
+            roomName,
+            betPoints,
+            password
+        } = this.state
+        const {
+            loading, 
             error,
-            alert,
-            //For input
-            handlePassword,
-            handleRoomName,
-            handleBetPoints,
-            //For button
-            onClose
+            errorInfo,
+            closeModal,
+            handleCreateRoom
         } = this.props
         return (
             <MainWrapper>
-                <ExitBTN src={process.env.PUBLIC_URL + '/images/close.svg'} onClick={onClose} />
+                <ExitBTN src={process.env.PUBLIC_URL + '/images/close.svg'} onClick={closeModal} />
                 <Title>Create room</Title>
                 <ContentWrapper>
                     <InputWrapper style={{ marginTop: "1rem" }}>
@@ -118,7 +152,7 @@ class CreateRoom extends Component {
                                 name="roomName"
                                 type="text"
                                 value={roomName}
-                                onChange={handleRoomName}
+                                onChange={this.handleRoomNameInput}
                                 color="#494949"
                                 error={error}
                             />
@@ -129,9 +163,9 @@ class CreateRoom extends Component {
                         <div style={{ width: "15rem" }}>
                             <Input
                                 name="betPoints"
-                                type="number"
+                                type="text"
                                 value={betPoints}
-                                onChange={handleBetPoints}
+                                onChange={this.handleBetPointsInput}
                                 color="#494949"
                                 error={error}
                             />
@@ -144,15 +178,15 @@ class CreateRoom extends Component {
                                 name="password"
                                 type="password"
                                 value={password}
-                                onChange={handlePassword}
+                                onChange={this.handlePasswordInput}
                                 color="#494949"
                                 error={error}
                             />
                         </div>
                     </InputWrapper>
                     <Alert error={error}>
-                        <b>{alert.title}</b><br />
-                        {alert.detail}
+                        <b>{errorInfo.title}</b><br />
+                        {errorInfo.detail}
                     </Alert>
                 </ContentWrapper>
                 <div style={{ marginTop: '2rem' }}>
@@ -160,7 +194,7 @@ class CreateRoom extends Component {
                         color="#fff"
                         border="#494949"
                         bg="#494949"
-                        onClick={this.toggleLoading}
+                        onClick={this.handleClick}
                     >
                         {!loading ? <Text>Join</Text> :
                             <LoadingLogo />}
@@ -170,5 +204,18 @@ class CreateRoom extends Component {
         )
     }
 }
+const mapStateToProps = state => ({
+    loading: state.room.loading,
+    error: state.modal.error,
+    errorInfo: state.modal.errorInfo
+})
+const mapDispatchToProps = dispatch => ({
+    clearError: () => dispatch(modal_clear_error()),
+    closeModal: () => dispatch(modal_close()),
+    handleCreateRoom: (roomName, betPoints, password) => dispatch(handle_create_room(roomName, betPoints, password))
+})
 
-export default CreateRoom
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(CreateRoom)

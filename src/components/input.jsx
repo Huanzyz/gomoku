@@ -25,13 +25,6 @@ const HoverLine = styled.div`
     width: ${props => props.input === "" ? "0%" : "100%"}
 
 `
-const InputGroup = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 16rem;
-`
 
 class Input extends Component {
     render() {

@@ -17,6 +17,7 @@ const ButtonWrapper = styled.div`
     transition: all 0.2s ease-in;
 `
 class Button extends Component{
+
     render(){
         const {border, bg, color, onClick} = this.props
         return(

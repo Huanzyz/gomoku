@@ -4,15 +4,16 @@ import JoinRoom1 from './join-room-1'
 import JoinRoom2 from './join-room-2'
 import CreateRoom from './create-room'
 import { connect } from 'react-redux'
+import { getBodyHeight } from '../../utils/utils'
 
 const BackDrop = styled.div`
     background-color: rgba(0, 0, 0, 0.5);
-    height: 100vh;
+    height: ${ `${getBodyHeight() + 60}px`};
     position: absolute;
     transition: all 1.3s;
     width: 100%;
     z-index: 3;
-    transform: ${props => !props.showModal ? 'translateY(-100rem)' : 'translateY(0rem)'};
+    transform: ${props => !props.showModal ? 'translateY(-500rem)' : 'translateY(0rem)'};
 `
 class Modal extends Component {
     render() {

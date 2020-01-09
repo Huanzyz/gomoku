@@ -88,11 +88,11 @@ const WidthLimitContainer = styled.div`
 class Dashboard extends Component {
     render() {
         let color = store.getState().listRoom.color
-        // if(false){
-        //     return(
-        //         <Loading />
-        //     )
-        // }
+        
+        // return(
+        //     <Loading />
+        // )
+        
         return (
             <MainWrapper>
                 <Modal />

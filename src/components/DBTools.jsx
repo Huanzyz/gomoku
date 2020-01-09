@@ -23,14 +23,12 @@ const ButtonWrapper = styled.div`
     align-items: center;
 `
 class DBTools extends Component{
-    handleRefresh = () => {
-        this.props.getListRoomInfo()
-    }
     render(){
         const {
             loading,
-            openModal
-        } = this.props;
+            openModal,
+            getListRoomInfo
+        } = this.props        
         return(
             <MainWrapper>
                 <Name>Game Rooms</Name>
@@ -39,13 +37,13 @@ class DBTools extends Component{
                         color="#0772BB"
                         before="/images/refresh.svg"
                         after="/images/white-refresh.svg"
-                        loading={loading}
-                        onClick={this.handleRefresh} 
+                        loading={loading ? 1 : 0}
+                        onClick={getListRoomInfo} 
                     />
                     <div style={{margin: '0 1rem'}}>
-                        <Button border="#494949" bg="#fff" color="#494949" onClick={() => openModal(1, null, null)}>Join Room</Button>
+                        <Button border="#494949" bg="#fff" color="#494949" onClick={() => openModal(1)}>Join Room</Button>
                     </div>
-                    <Button border="#494949" bg="#494949" color="#fff" onClick={() => openModal(3, null, null)}>Create Room</Button>
+                    <Button border="#494949" bg="#494949" color="#fff" onClick={() => openModal(3)}>Create Room</Button>
                 </ButtonWrapper>
             </MainWrapper>
         )
@@ -56,7 +54,7 @@ const mapStateToProps = state => ({
 })
 const mapDispatchToProps = dispatch => ({
     getListRoomInfo: () => dispatch(get_list_room_info()),
-    openModal: (type, roomID, isLock) => dispatch(modal_open(type, roomID, isLock))
+    openModal: (type) => dispatch(modal_open(type))
 })
 
 export default connect(

@@ -18,14 +18,9 @@ class ListRoom extends Component{
         } = this.props
         return(
             <MainWrapper quantity={listRoom.length}>
-                {listRoom.map(e => <Room
-                    key={e.roomID}
-                    roomID={e.roomID}
-                    points={e.points}
-                    avatar={e.avatar}
-                    isLock={e.isLock}
-                    roomName={e.roomName}
-                    host={e.host}
+                {listRoom.map((e, index) => <Room
+                    key={index}
+                    room={e}
                 />)}
             </MainWrapper>
         )

@@ -2,8 +2,10 @@ import React, { Component } from 'react'
 import styled, {keyframes, css} from 'styled-components'
 import Input from '../input'
 import Button from '../button/btn'
-import { modal_close } from '../../actions/modal'
+import { modal_close, modal_clear_error } from '../../actions/modal'
 import { connect } from 'react-redux'
+import { handle_join_room } from '../../actions/room'
+import { formatNumber } from '../../utils/utils'
 
 const MainWrapper = styled.div`
     background-color: #fff;
@@ -77,6 +79,14 @@ const LoadingLogo = styled.div`
     background-image: url(/images/white-refresh.svg);
     animation: ${rotate} 1s linear infinite;
 `
+const Image = styled.img`
+    height: 2rem;
+    width: 2rem;
+    margin-right: 1.7rem;
+`
+const Info = styled.span`
+    font-size: 1.25rem;
+`
 //MODAL JOIN_ROOM: password, betPoints
 class JoinRoom extends Component {
     constructor(props) {
@@ -85,57 +95,71 @@ class JoinRoom extends Component {
             password: ""
         }
     }
-    toggleLoading = () => {
-        this.setState(prevState => ({
-            loading: !prevState.loading,
-            error: !prevState.error
-        }))
+    handleInput = e => {
+        if(this.props.loading !== true){
+            this.props.clearError()
+            this.setState({
+                password: e.target.value
+            })
+        }
+        
+    }
+    handleClick = () => {
+        const { password } = this.state
+        const {
+            roomID,
+            loading,
+            handleJoinRoom
+        } = this.props
+        if(loading !== true){
+            handleJoinRoom(roomID, password)
+        }
     }
     render() {
-        const { loading } = this.state
-        const { 
-            //Main data
-            roomID,
-            password,
-            isLock,
-            error,
-            alert,
-            typeOfModal,
-            //For input
-            handleRoomID,
-            handlePassword,
-            //For button
-            onClose,
-            //For redirecting
-            showModal
-        } = this.props
         const {
-            isShown,
-
+            password
+        } = this.state
+        const {
+            roomID,
+            isLock,
+            loading,
+            betPoints,
+            error, 
+            errorInfo,
+            closeModal,
+            handleJoinRoom
         } = this.props
         return (
             <MainWrapper>
-                <ExitBTN src={process.env.PUBLIC_URL + '/images/close.svg'} onClick={onClose} />
+                <ExitBTN src={process.env.PUBLIC_URL + '/images/close.svg'} onClick={closeModal} />
                 <Title>Join room</Title>
                 <ContentWrapper>
-                    <InputWrapper style={{ marginTop: "1rem" }}>
-                            <React.Fragment>
-                            <Label>Password</Label>
-                                <div style={{ width: "13.75rem" }}>
-                                    <Input
-                                        name="password"
-                                        type="password"
-                                        value={password}
-                                        onChange={handlePassword}
-                                        color="#494949"
-                                        error={error}
-                                    />
-                                </div>
-                            </React.Fragment>
+                    <InputWrapper style={{justifyContent : 'center'}}>
+                        <div>
+                            <Image src={process.env.PUBLIC_URL + '/images/diamond.svg'}/>
+                            <Info>{formatNumber(parseInt(betPoints))}</Info>
+                        </div>
                     </InputWrapper>
+                    {isLock &&
+                        <InputWrapper style={{ marginTop: "1rem" }}>
+                                <React.Fragment>
+                                <Label>Password</Label>
+                                    <div style={{ width: "13.75rem" }}>
+                                        <Input
+                                            name="password"
+                                            type="password"
+                                            value={password}
+                                            onChange={this.handleInput}
+                                            color="#494949"
+                                            error={error}
+                                        />
+                                    </div>
+                                </React.Fragment>
+                        </InputWrapper>
+                    }
                     <Alert error={error}>
-                        <b>{alert.title}</b><br/>
-                        {alert.detail}
+                        <b>{errorInfo.title}</b><br/>
+                        {errorInfo.detail}
                     </Alert>
                 </ContentWrapper>
                 <div style={{ marginTop: '2rem'}}>
@@ -143,7 +167,7 @@ class JoinRoom extends Component {
                         color="#fff"
                         border="#494949"
                         bg="#494949"
-                        onClick={this.toggleLoading}
+                        onClick={this.handleClick}
                     >
                         {!loading?<Text>Join</Text>:
                         <LoadingLogo/>}
@@ -154,11 +178,16 @@ class JoinRoom extends Component {
     }
 }
 const mapStateToProps = state => ({
-    roomID: state.modal.roomID,
-    isLock: state.modal.isLock,
-    type: state.modal.type
+    roomID: state.room.room.id,
+    isLock: state.room.room.hasPassword,
+    betPoints: state.room.room.betPoints,
+    loading: state.room.loading,
+    error: state.modal.error,
+    errorInfo: state.modal.errorInfo
 })
 const mapDispatchToProps = dispatch => ({
+    clearError: () => dispatch(modal_clear_error()),
+    handleJoinRoom: (id, password) => dispatch(handle_join_room(id, password)),
     closeModal: () => dispatch(modal_close())
 })
 

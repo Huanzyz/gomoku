@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import styled, {keyframes, css} from 'styled-components'
 import Input from '../input'
 import Button from '../button/btn'
-import { modal_close } from '../../actions/modal'
+import { modal_close, modal_clear_error } from '../../actions/modal'
+import { handle_search_room } from '../../actions/room'
 import { connect } from 'react-redux'
 
 const MainWrapper = styled.div`
@@ -85,16 +86,23 @@ class JoinRoom extends Component {
             roomID: ""
         }
     }
-    toggleLoading = () => {
-        this.setState(prevState => ({
-            loading: !prevState.loading,
-            error: !prevState.error
-        }))
-    }
     handleInput = e => {
-        this.setState({
-            roomID: e.target.value
-        })
+        if(this.props.loading !== true){
+            this.props.clearError()
+            this.setState({
+                roomID: e.target.value
+            })
+        }
+    }
+    handleClick = () => {
+        const { roomID } = this.state
+        const {
+            loading,
+            handleSearchRoom
+        } = this.props
+        if(loading !== true){
+            handleSearchRoom(roomID)
+        }
     }
     render() {
         const {
@@ -104,8 +112,10 @@ class JoinRoom extends Component {
             loading,
             error,
             errorInfo,
-            closeModal
+            closeModal,
+            handleSearchRoom
         } = this.props
+        console.log(error, errorInfo)
         return (
             <MainWrapper>
                 <ExitBTN src={process.env.PUBLIC_URL + '/images/close.svg'} onClick={closeModal} />
@@ -127,19 +137,21 @@ class JoinRoom extends Component {
                         </React.Fragment>    
                     </InputWrapper>
                     <Alert error={error}>
-                        <b>{errorInfo.title}</b><br/>
-                        {errorInfo.detail}
+                        <b>{errorInfo.title}</b>
+                        <br/>{errorInfo.detail}
                     </Alert>
                 </ContentWrapper>
                 <div style={{ marginTop: '2rem'}}>
                     <Button
                         color="#fff"
                         border="#494949"
-                        bg="#494949"
-                        onClick={this.toggleLoading}
+                        bg="#494949"                        
+                        onClick={this.handleClick}
                     >
-                        {!loading?<Text>Join</Text>:
-                        <LoadingLogo/>}
+                        { (!loading) ? 
+                            <Text>Join</Text>
+                        : <LoadingLogo/>
+                        }
                     </Button>
                 </div>
             </MainWrapper>
@@ -147,12 +159,14 @@ class JoinRoom extends Component {
     }
 }
 const mapStateToProps = state => ({ 
-    loading: state.modal.loading,
+    loading: state.room.loading,
     error: state.modal.error,
     errorInfo: state.modal.errorInfo
 })
 const mapDispatchToProps = dispatch => ({
-    closeModal: () => dispatch(modal_close())
+    clearError: () => dispatch(modal_clear_error()),
+    closeModal: () => dispatch(modal_close()),
+    handleSearchRoom: (id) => dispatch(handle_search_room(id))
 })
 
 export default connect(

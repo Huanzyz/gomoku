@@ -3,6 +3,7 @@ import styled,{keyframes,css} from 'styled-components'
 import {getFormattedStringForPoints} from '../../utils/utils'
 import { modal_open } from '../../actions/modal'
 import { connect } from 'react-redux'
+import { room_set_info } from '../../actions/room'
 
 const bounce = keyframes`
     0% {
@@ -85,32 +86,31 @@ const Image = styled.img`
     visibility: ${props => props.src == "none" ? "hidden" : "visible"};
 `
 class Room extends Component {
+    handleClick = () => {
+        this.props.setRoomInfo(this.props.room)
+        this.props.openModal(2)
+    }
     render() {
         const{
-            roomID, 
-            avatar,
-            isLock,
-            roomName,
-            host,
-            points,
+            room,
             openModal
         } = this.props
         return (
-            <MainWrapper onClick={() => openModal(2, roomID, isLock)}>
+            <MainWrapper onClick={this.handleClick}>
                 <AvatarWrapper>
-                    <Avatar src={process.env.PUBLIC_URL+ `/images/r${avatar}.svg`}></Avatar>
+                    <Avatar src={process.env.PUBLIC_URL+ `/images/r${room.background}.svg`}></Avatar>
                 </AvatarWrapper>
                 <SubWrapper>
                     <Info>
-                        <Text>{roomName}</Text>
-                        <Host>Host: {host}</Host>
+                        <Text>{room.roomName}</Text>
+                        <Host>Host: {room.host.username}</Host>
                     </Info>
                     <TinyWrapper>
                     <Point>
                         <Image src={process.env.PUBLIC_URL + '/images/diamond.svg'}></Image>
-                        <Text> {getFormattedStringForPoints(points)}</Text>
+                        <Text> {getFormattedStringForPoints(room.betPoints)}</Text>
                     </Point>
-                    <Image src={isLock? process.env.PUBLIC_URL + '/images/lock.svg': 'none'}></Image>
+                    <Image src={room.hasPassword? process.env.PUBLIC_URL + '/images/lock.svg': 'none'}></Image>
                     </TinyWrapper>
                 </SubWrapper>
             </MainWrapper>
@@ -118,7 +118,8 @@ class Room extends Component {
     }
 }
 const mapDispatchToProps = dispatch => ({
-    openModal: (type, roomID, isLock) => dispatch(modal_open(type, roomID, isLock))
+    openModal: (type) => dispatch(modal_open(type)),
+    setRoomInfo: (room) => dispatch(room_set_info(room))
 })
 export default connect(
     null,
