@@ -67,8 +67,8 @@ export function formatNumber(num){
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
 }
 export function shortenName(name, length){
-    if(name.length > 10)
-        return name.slice(0,length-3) + "...";
+    if(name.length > length)
+        return name.slice(0 ,length-3) + "...";
     return name;
 }
 export function getBodyHeight(){
@@ -78,4 +78,8 @@ export function getBodyHeight(){
     var height = Math.max( body.scrollHeight, body.offsetHeight, 
                        html.clientHeight, html.scrollHeight, html.offsetHeight )
     return height
+}
+export function isAuthenticated() {
+    let jwt = getJwtFromStorage();
+    return (jwt !== null && jwt !== "");
 }

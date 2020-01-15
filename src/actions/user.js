@@ -64,7 +64,6 @@ export const handle_login_user = (username, password) => dispatch => {
         dispatch(user_error(err))
     }
     else{
-        /*
         api.post('/auth',{
             username,
             password
@@ -77,16 +76,15 @@ export const handle_login_user = (username, password) => dispatch => {
             dispatch(user_login_failure())
             dispatch(user_error(err))
         })
-        */
-       setTimeout(()=>{
-            console.log(`Username: ${username} - Password: ${password}`)
-            let err = {
-                title: "Server error!",
-                detail: "Please try again later..."
-            }
-            dispatch(user_login_failure())
-            dispatch(user_error(err))
-       }, 5000)
+    //    setTimeout(()=>{
+    //         console.log(`Username: ${username} - Password: ${password}`)
+    //         let err = {
+    //             title: "Server error!",
+    //             detail: "Please try again later..."
+    //         }
+    //         dispatch(user_login_failure())
+    //         dispatch(user_error(err))
+    //    }, 5000)
     }
 }
 
@@ -133,29 +131,28 @@ export const handle_register_user = (username, password, confirmPassword) => dis
         dispatch(user_register_failure())
         dispatch(user_error(err))
     }
-    else{
-        /*
+    else{        
         api.post('/register',{
             username,
             password
         },{})
         .then(res => {
-            dispatch(user_register_success(res.data.user))
+            dispatch(user_register_success())
         })
         .catch(err => {
             dispatch(user_register_failure())
             dispatch(user_error(err))
         })
-        */
-       setTimeout(()=>{
-            console.log(`Username: ${username} - Password: ${password} - Confirm password: ${confirmPassword}`)
-            let err = {
-                title: "Server error!",
-                detail: "Please try again later..."
-            }
-            dispatch(user_register_failure())
-            dispatch(user_error(err))
-       }, 5000)
+        
+    //    setTimeout(()=>{
+    //         console.log(`Username: ${username} - Password: ${password} - Confirm password: ${confirmPassword}`)
+    //         let err = {
+    //             title: "Server error!",
+    //             detail: "Please try again later..."
+    //         }
+    //         dispatch(user_register_failure())
+    //         dispatch(user_error(err))
+    //    }, 5000)
     }
 }
 

@@ -12,7 +12,35 @@ import {
 } from '../actions/room'
 
 const InitRoom = () => ({
-    room: {},
+    room: {
+        id: "8aaf253097",
+        roomName: "abc",
+        betPoints: 1000,
+        hasPassword: true,
+        host: 
+        {
+            username: "abcdefghe",
+            avatar: "8",
+            points: 10000,
+            countWin: 100,
+            countDraw: 10,
+            countLose: 30,
+            rank: 1
+        },
+        // guest: null,
+        guest: 
+        {
+            username: "cde",
+            avatar: "9",
+            points: 9000,
+            countWin: 100,
+            countDraw: 10,
+            countLose: 30,
+            rank: 5
+        },
+        background: "5"
+    },
+    // room: {},
     loading: false
 })
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import Leaderboard from '../components/leaderboard/leaderboard'
 import Profile from '../components/profile'
 import DBTools from '../components/DBTools'
@@ -10,7 +10,7 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 import ExitButton from '../components/button/btn-img'
 import Modal from '../components/modal/modal'
 import Loading from '../components/loading'
-import { store } from '../index'
+import { connect } from 'react-redux'
 
 const MainWrapper = styled.div`
     width: 100vw;
@@ -86,15 +86,18 @@ const WidthLimitContainer = styled.div`
     height: 100%;
 `
 class Dashboard extends Component {
-    render() {
-        let color = store.getState().listRoom.color
-        
+    render() {        
         // return(
         //     <Loading />
         // )
+        const { 
+            color,
+            play
+        } = this.props
         
-        return (
+        return (            
             <MainWrapper>
+                {play && <Redirect to="/play"/>}
                 <Modal />
                 <Header>
                     <WidthLimitContainer>
@@ -134,5 +137,10 @@ class Dashboard extends Component {
         )
     }
 }
-
-export default Dashboard
+const mapStateToProps = state => ({
+    color: state.listRoom.color,
+    play: state.game.play
+})
+export default connect(
+    mapStateToProps
+)(Dashboard)

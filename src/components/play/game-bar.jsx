@@ -1,6 +1,8 @@
 import React, {Component} from 'react'
 import styled from 'styled-components'
 import GameControlButton from './game-control-button'
+import { game_quit } from '../../actions/game'
+import { connect } from 'react-redux'
 
 const MainWrapper = styled.div`
     display: flex;
@@ -39,7 +41,9 @@ class GameBar extends Component{
         }))
     }
     render(){
-        const {waiting} = this.state;
+        const {
+            guest
+        } = this.props;
 
         return(
             <MainWrapper>
@@ -48,7 +52,7 @@ class GameBar extends Component{
                     <BetPointsLogo src={process.env.PUBLIC_URL + '/images/diamond.svg'} />
                 </BetPointsWrapper>
                 <ButtonWrapper>
-                    {waiting ? 
+                    {guest === null? 
                         <span style={{fontSize: '1.25rem'}}>Room ID: <b>DeNvAuxxx</b></span>
                         :
                         <GameControlButton/>
@@ -58,5 +62,13 @@ class GameBar extends Component{
         )
     }
 }
-
-export default GameBar
+const mapStateToProps = state => ({
+    guest: state.room.room.guest
+})
+const mapDispatchToProps = dispatch => ({
+    handleQuitGame: () => dispatch(game_quit())
+})
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(GameBar)

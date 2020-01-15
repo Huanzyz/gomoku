@@ -1,12 +1,20 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import {Link} from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import ImageBTN from '../components/button/btn-img'
 import GameBar from '../components/play/game-bar'
 import Board from '../components/play/board'
 import TimeProgress from "../components/play/time-progress"
 import GameInfo from '../components/play/game-info'
 import Chat from '../components/play/chat'
+import { 
+    game_quit, 
+    handle_time_decrease, 
+    game_switch_turn,
+    game_tick ,
+    game_init_tiles
+} from '../actions/game'
+import { connect } from 'react-redux'
 
 const MainWrapper = styled.div`
     width: 100vw;
@@ -65,87 +73,34 @@ const WidthLimitContainer = styled.div`
     position: relative;
     height: 100%;
 `
-class Play extends Component{
-    constructor(props){
-        super(props)
-        this.state = {
-            rows: 18,
-            cols: 22,
-            time: 15, 
-            max: 15,
-            lastTick: -1,
-            tileSize: '2rem',
-            tiles: [],
-            lock: false,
-            turn: 1,
-            waiting: true
-        } 
-    }
-    changeTurn = () => {
-        this.setState(prevState => ({
-            turn: prevState.turn === 1 ? 2 : 1
-        }))
-    }
-    handleTick= id => {
-        let {tiles, lock, turn} = this.state
-        if(tiles[id].value === 0){
-            tiles[id].value = turn;
-            this.changeTurn();
-        }
-        this.setState({
-            tiles,
-            lastTick: id,
-            time: 15
-        })        
-    }
-    initTiles = (rows, cols) => {
-        let tiles = []
-        for(let i = 0;i < rows*cols; i++){
-            tiles.push({value: 0})
-        }
-        clearInterval(this.timeID);
-        this.setState({
-            tiles
-        })
-    }
+class Play extends Component{  
     componentDidMount(){
-        let {tiles, rows, cols, waiting} = this.state
-        if(tiles.length === 0){            
-            this.initTiles(rows, cols);
-        }
-        if(!waiting){
-            this.timeID = setInterval(()=>{
-                if(this.state.time !== 0){
-                    this.setState(prevState => {
-                        return({
-                            time: prevState.time - 1
-                        })
-                    })
-                }
-            },1000)
-        }
-    }
-    componentWillMount(){
-        clearInterval(this.timeID);
+        const { board } = this.props
+        if(board.tiles.length === 0){
+            this.props.handleInitTiles()
+        }    
     }
     render(){
-        const {rows, cols, time, max, lastTick, tileSize, tiles} = this.state;
-
+        const {
+            play,
+            board,
+            handleQuitGame
+        } = this.props
         return(
             <MainWrapper>
+                {!play && <Redirect to="/"/>}
                 <Header>
                     <WidthLimitContainer>
                         <LogoWrapper>
                             <Name>GOMOKU</Name>
                             <Logo src={process.env.PUBLIC_URL + '/images/characters.svg'} />
                         </LogoWrapper>
-                        <Link to="/login">
-                            <ImageBTN
-                                color="#EB5757"
-                                before="/images/exit.svg"
-                                after="/images/white-exit.svg"
-                            />
-                        </Link>
+                        <ImageBTN
+                            color="#EB5757"
+                            before="/images/exit.svg"
+                            after="/images/white-exit.svg"
+                            onClick={handleQuitGame}
+                        />
                     </WidthLimitContainer>
                 </Header>
                 <ContentWrapper>
@@ -153,19 +108,11 @@ class Play extends Component{
                         <SectionOne>
                             <GameBar />
                             <Line />
-                            {tiles.length!== 0 &&
-                                <Board 
-                                    tiles={tiles}
-                                    rows={rows}
-                                    cols={cols}
-                                    tiles={tiles}
-                                    lastTick={lastTick}
-                                    tileSize={tileSize}
-                                    onTick={this.handleTick}
-                                />
+                            {board.tiles.length!== 0 &&
+                                <Board />
                             }
                             <Line />
-                            <TimeProgress max={max} time={time} />
+                            <TimeProgress />
                         </SectionOne>
                         <SectionTwo>
                             <GameInfo />
@@ -177,4 +124,16 @@ class Play extends Component{
         )
     }
 }
-export default Play
+const mapStateToProps = state => ({
+    play: state.game.play,
+    board: state.game.board
+})
+const mapDispatchToProps = dispatch => ({
+    handleInitTiles: () => dispatch(game_init_tiles()),
+    handleSwitchTurn: () => dispatch(game_switch_turn()),
+    handleQuitGame: () => dispatch(game_quit())
+})
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Play)

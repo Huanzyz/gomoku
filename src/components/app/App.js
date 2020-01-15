@@ -5,6 +5,7 @@ import Login from '../../pages/login'
 import Register from '../../pages/register'
 import Dashboard from '../../pages/dashboard'
 import Play from '../../pages/play'
+import PrivateRoute from '../private-route'
 
 class App extends Component {
   render() {
@@ -19,10 +20,18 @@ class App extends Component {
                 timeout={600}
               >
                 <Switch location={location}>
+                  <PrivateRoute              
+                      exact
+                      path="/"
+                      component={Dashboard}
+                  />
+                  <PrivateRoute              
+                      exact
+                      path="/play"
+                      component={Play}
+                  />
                   <Route path="/login" component={Login}/>
                   <Route path="/register" component={Register} />
-                  <Route exact path="/" component={Dashboard} />
-                  <Route path="/play" component={Play} />
                 </Switch>
               </CSSTransition>
             </TransitionGroup>

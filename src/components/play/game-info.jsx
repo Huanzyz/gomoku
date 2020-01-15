@@ -2,10 +2,14 @@ import React, {Component} from 'react'
 import styled from 'styled-components'
 import O from './O'
 import X from './X'
+import { connect } from 'react-redux'
+import { rankString, shortenName } from '../../utils/utils'
 
 const MainWrapper = styled.div`
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 `
 const SubWrapper = styled.div`
     display: flex;
@@ -60,38 +64,44 @@ const RankingLogo = styled.div`
 `
 class GameInfo extends Component{
     render(){
+        const {
+            host,
+            guest,
+            hostPoint,
+            guestPoint
+        } = this.props
         return(
             <MainWrapper>
                 <SubWrapper>
                     <AvatarWrapper>
-                        <LeftAvatar src={process.env.PUBLIC_URL + '/images/a1.svg'}/>
+                        <LeftAvatar src={process.env.PUBLIC_URL + `/images/a${host.avatar}.svg`}/>
                         <CheckWrapper style={{left: '0'}}>
                             <O width="3rem" height="3rem" color="#0772B8"/>
                         </CheckWrapper>
                     </AvatarWrapper>
-                    <Result style={{marginTop: "3.8rem"}}>10</Result>
+                    <Result style={{marginTop: "3.8rem"}}>{guestPoint}</Result>
                 </SubWrapper>
                 <SubWrapper>
                     <UserInfo>
-                        <UserName>kikiki</UserName>
+                        <UserName>{shortenName(host.username,8)}</UserName>
                         <RankingWrapper>
                             <RankingLogo />
-                            <span>1st</span>
+                            <span>{rankString(host.rank)}</span>
                         </RankingWrapper>
                     </UserInfo>
                     <Result>-</Result>
                     <UserInfo>
-                        <UserName>hihihi</UserName>
+                        <UserName>{guest === null ? " " : shortenName(guest.username,8)}</UserName>
                         <RankingWrapper>
                             <RankingLogo />
-                            <span>1st</span>
+                            <span>{guest === null ? " " : rankString(guest.rank)}</span>
                         </RankingWrapper>
                     </UserInfo>
                 </SubWrapper>
                 <SubWrapper>
-                    <Result style={{marginBottom: "3.8rem"}}>1</Result>
+                    <Result style={{marginBottom: "3.8rem"}}>{hostPoint}</Result>
                     <AvatarWrapper>
-                        <RightAvatar src={process.env.PUBLIC_URL + '/images/noname.svg'}/>
+                        <RightAvatar src={process.env.PUBLIC_URL + `/images/${guest === null ? 'noname' : 'a' + guest.avatar}.svg`}/>
                         <CheckWrapper style={{right: '0'}}>
                             <X width="3rem" height="3rem" color="#EB5757"/>
                         </CheckWrapper>
@@ -102,5 +112,12 @@ class GameInfo extends Component{
         )
     }
 }
-
-export default GameInfo
+const mapStateToProps = state => ({
+    host: state.room.room.host,
+    guest: state.room.room.guest,
+    hostPoint: state.game.hostPoint,
+    guestPoint: state.game.guestPoint
+})
+export default connect(
+    mapStateToProps
+)(GameInfo)

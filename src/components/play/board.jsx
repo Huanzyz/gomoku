@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 import styled from 'styled-components'
 import Tile from './tile'
 import Result from './result'
+import { handle_game_tick } from '../../actions/game'
+import { connect } from 'react-redux'
 
 // const Tile = styled.div`
 //     cursor: pointer; 
@@ -28,20 +30,20 @@ const BackDrop = styled.div`
     z-index: 3;
 `
 class Board extends Component{
-    state={
-        waiting: false,
-        win: true,
-        end: false
-    }
     generateRow(rowIndex){
-        const {tiles, lastTick, tileSize, onTick} = this.props
+        const {
+            tiles, 
+            lastTick, 
+            tileSize,
+            handleTick
+        } = this.props
         let cols = []
         for(let i = 0; i < this.props.cols; i++){
-            const id = rowIndex * this.props.cols + i;
+            const id = rowIndex * this.props.cols + i
             cols.push(
                 <Tile 
                     key={id}
-                    onTick={() => onTick(id)}
+                    onTick={() => handleTick(id)}
                     value={tiles[id].value}
                     lastTick={lastTick === id}
                     width={tileSize}
@@ -69,15 +71,36 @@ class Board extends Component{
         }))
     }
     render(){
-        const {waiting, win, end} = this.state
+        const {
+            win, 
+            end,
+            turn,
+            myTurn
+        } = this.props
         return(
-            <Wrapper className="board" onClick={this.handleShowResult}>
-                <Result win={win} end={end}/>
-                {waiting && <BackDrop />}
+            <Wrapper className="board">
+                {win !== null  && <Result win={win} end={end}/>}
+                {((turn !== myTurn && !end) || end) && <BackDrop />}
                 {this.generateBoard()}
             </Wrapper>
         )
     }
 }
-
-export default Board
+const mapStateToProps = state => ({
+    rows: state.game.board.rows,
+    cols: state.game.board.cols,
+    tiles: state.game.board.tiles,
+    lastTick: state.game.board.lastTick,
+    tileSize: state.game.board.tileSize,
+    turn: state.game.board.turn,
+    myTurn: state.game.board.myTurn,
+    win: state.game.board.win,
+    end: state.game.board.end
+})
+const mapDispatchToProps = dispatch => ({
+    handleTick: id => dispatch(handle_game_tick(id))
+})
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Board)

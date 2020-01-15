@@ -8,13 +8,13 @@ const Wrapper = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;  
-    z-index: 3;
+    z-index: 4;
     background-color: white; 
     position: absolute;
     top: 0;
     left: 0; 
     transform: ${props => props.end ? 'translateY(0rem)' :'translateY(-60rem)'};
-    opacity: 0${props => props.end ? '1' :'0'};
+    opacity: ${props => props.end ? '1' :'0'};
     transition: all 0.5s linear;
 `
 const TextWrapper = styled.div`

@@ -3,7 +3,9 @@ import {
     modal_open,
     modal_error
 } from '../actions/modal'
-import { getRandomNumber } from '../utils/utils'
+import {
+    game_open
+} from '../actions/game'
 import { store } from '../index'
 
 export const ROOM_SEARCH_BEGIN = 'ROOM_SEARCH_BEGIN'
@@ -114,7 +116,8 @@ export const handle_join_room = (id, password) => dispatch => {
             password
         })
         .then(res => {
-            dispatch(room_join_success(res.data))        
+            dispatch(room_join_success(res.data))   
+            dispatch(game_open())     
         })
         .catch(err => {
             dispatch(room_join_failure())
@@ -138,7 +141,8 @@ export const handle_join_room = (id, password) => dispatch => {
             password
         })
         .then(res => {
-            dispatch(room_join_success(res.data))        
+            dispatch(room_join_success(res.data))    
+            dispatch(game_open())    
         })
         .catch(err => {
             dispatch(room_join_failure())
@@ -202,6 +206,7 @@ export const handle_create_room = (roomName, betPoints, password) => dispatch =>
         }, {})
         .then(res => {
             dispatch(room_create_success(res.data))
+            dispatch(game_open())
         })
         .catch(err => {
             dispatch(room_create_failure())

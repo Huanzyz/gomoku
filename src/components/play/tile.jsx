@@ -2,6 +2,7 @@ import React,{Component} from 'react'
 import styled from 'styled-components'
 import X from './X'
 import O from './O'
+import { CHESS_X, CHESS_O } from '../../actions/game'
 
 
 const TileWrapper = styled.div`
@@ -54,13 +55,13 @@ class Tile extends Component {
                 lastTick={lastTick}
                 onClick={onTick}
             >
-                {value === 1 && 
+                {value === CHESS_X && 
                     <X
                         width={width}
                         height={height}
                         color='#EB5757'
                     />}
-                {value === 2 &&
+                {value === CHESS_O &&
                     <O 
                         width={width}
                         height={height}

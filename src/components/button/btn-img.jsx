@@ -12,6 +12,7 @@ const ButtonWrapper = styled.div`
         transform: translateY(-8px);
     }
     transition: background-color 0.5s ease-in-out, border-color 0.1s linear, transform 0.2s ease-in, box-shadow 0.2s ease-in;
+    cursor: pointer;
 `
 const Logo = styled.div`
     margin: 0.875rem;
@@ -26,9 +27,15 @@ const Logo = styled.div`
 
 class Button extends Component{
     render(){
+        const {
+            color,
+            before,
+            after,
+            onClick
+        } = this.props
         return(
-            <ButtonWrapper color={this.props.color}>
-                <Logo before={this.props.before} after={this.props.after}/>
+            <ButtonWrapper color={color} onClick={onClick}>
+                <Logo before={before} after={after}/>
             </ButtonWrapper>
         )
     }
