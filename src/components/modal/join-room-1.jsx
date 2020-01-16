@@ -115,7 +115,6 @@ class JoinRoom extends Component {
             closeModal,
             handleSearchRoom
         } = this.props
-        console.log(error, errorInfo)
         return (
             <MainWrapper>
                 <ExitBTN src={process.env.PUBLIC_URL + '/images/close.svg'} onClick={closeModal} />

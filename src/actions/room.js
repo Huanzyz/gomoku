@@ -56,16 +56,18 @@ export const handle_search_room = (id) => dispatch => {
         dispatch(modal_error(err))
     }
     else{
-        api.get('/room/search', {
+        api.get('/rooms/search', {
             id
         })
         .then(res => {
+            console.log(res)
             dispatch(room_search_success(res.data))
             dispatch(modal_open(2))
         })
-        .then(err => {
+        .catch(err => {
+            console.log(err)
             dispatch(room_search_failure())
-            dispatch(modal_error(err))
+            dispatch(modal_error(err.response.data.error))
         })
     }
 }
@@ -219,7 +221,7 @@ export const initialSocketIO = () => dispatch => {
         }
         else{
             dispatch(room_create_failure())
-            dispatch(modal_error(data.error))
+            dispatch(modal_error(data.error.error))
         }
     })
 
@@ -231,7 +233,7 @@ export const initialSocketIO = () => dispatch => {
         }
         else{
             dispatch(room_join_failure())
-            dispatch(modal_error(data.error))
+            dispatch(modal_error(data.error.error))
         }
     })
 

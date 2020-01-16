@@ -185,7 +185,7 @@ class Login extends Component {
                 })
                 .catch(err => {
                     this.props.userLoginFailure()
-                    this.props.userError(err)
+                    this.props.userError(err.response.data.error)
                 })
             }   
         }
