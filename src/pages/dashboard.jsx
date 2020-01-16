@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import { Link, Redirect } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import Leaderboard from '../components/leaderboard/leaderboard'
 import Profile from '../components/profile'
 import DBTools from '../components/DBTools'
@@ -11,6 +11,8 @@ import ExitButton from '../components/button/btn-img'
 import Modal from '../components/modal/modal'
 import Loading from '../components/loading'
 import { connect } from 'react-redux'
+import { initialSocketIO } from '../actions/room'
+import { user_logout } from '../actions/user'
 
 const MainWrapper = styled.div`
     width: 100vw;
@@ -75,6 +77,7 @@ const GameRoom = styled.div`
     flex-direction: column;
     justify-content: space-between;
     z-index: 1;
+    min-width: 47rem;
 `
 const WidthLimitContainer = styled.div`
     width: 73rem;
@@ -86,17 +89,23 @@ const WidthLimitContainer = styled.div`
     height: 100%;
 `
 class Dashboard extends Component {
-    render() {        
+    componentDidMount(){
+        this.props.initialSocketIO()
+    }
+    render() { 
         // return(
         //     <Loading />
         // )
         const { 
             color,
-            play
+            play,
+            authenticated,
+            handleLogout
         } = this.props
         
         return (            
             <MainWrapper>
+                {!authenticated && <Redirect to='/login'/>}
                 {play && <Redirect to="/play"/>}
                 <Modal />
                 <Header>
@@ -105,13 +114,12 @@ class Dashboard extends Component {
                             <Name>GOMOKU</Name>
                             <Logo src={process.env.PUBLIC_URL + '/images/characters.svg'} />
                         </LogoWrapper>
-                        <Link to="/login">
-                            <ExitButton
-                                color="#EB5757"
-                                before="/images/exit.svg"
-                                after="/images/white-exit.svg"
-                            />
-                        </Link>
+                        <ExitButton
+                            color="#EB5757"
+                            before="/images/exit.svg"
+                            after="/images/white-exit.svg"
+                            onClick={handleLogout}
+                        />
                     </WidthLimitContainer>                   
                 </Header>
                 <Section>
@@ -138,9 +146,15 @@ class Dashboard extends Component {
     }
 }
 const mapStateToProps = state => ({
+    authenticated: state.room.authenticated,
     color: state.listRoom.color,
     play: state.game.play
 })
+const mapDispatchToProps = dispatch => ({
+    initialSocketIO: () => dispatch(initialSocketIO()),
+    handleLogout: () => dispatch(user_logout())
+})
 export default connect(
-    mapStateToProps
+    mapStateToProps,
+    mapDispatchToProps
 )(Dashboard)

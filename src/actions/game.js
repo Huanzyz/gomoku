@@ -1,4 +1,6 @@
 import {store} from '../index'
+import { IdToCoordinate } from '../utils/utils'
+import { modal_close } from './modal'
 
 export const CHESS_X = 1;
 export const CHESS_O = 2;
@@ -16,13 +18,24 @@ export const GAME_END = 'GAME_END'
 export const GAME_START = 'GAME_START'
 export const GAME_PLAY_AGAIN = 'GAME_PLAY_AGAIN'
 
-
-export const game_open = () => ({
-    type: GAME_OPEN
-})
-export const game_quit = () => ({
-    type: GAME_QUIT
-})
+export const game_open = () => dispatch =>{
+    dispatch(modal_close())
+    dispatch({
+        type: GAME_OPEN
+    })
+}
+export const game_quit = () => dispatch => {
+    let socket = store.getState().room.socket
+    let username = store.getState().user.user.username
+    let roomId = store.getState().room.room.id
+    socket.emit('exit',{
+        username,
+        roomId
+    })
+    dispatch({
+        type: GAME_QUIT
+    })
+}
 export const game_time_decrease = () => ({
     type: GAME_TIME_DECREASE
 })
@@ -30,6 +43,11 @@ export const game_assign_turn = (turn) => ({
     type: GAME_ASSIGN_TURN,
     turn
 })
+export const handle_game_assign_turn = () => dispatch => {
+    let host = store.getState().room.room.host.username
+    let currentUser = store.getState().user.user.username
+    dispatch(game_assign_turn(host === currentUser ? 1 : 2))
+}
 export const game_switch_turn = () => ({
     type: GAME_SWITCH_TURN
 })
@@ -38,20 +56,37 @@ export const game_tick = (id, tiles) => ({
     id,
     tiles
 })
-export const game_reset = () => ({
-    type: GAME_RESET
-})
+export const game_reset = () =>  dispatch => {
+    dispatch({
+        type: GAME_RESET
+    })
+    dispatch(game_init_tiles())
+}
 export const game_init_tiles = () => ({
     type: GAME_INIT_TILES
 })
 export const handle_game_tick = id => dispatch => {
     let {tiles, turn} = store.getState().game.board
+    let socket = store.getState().room.socket
+    let username = store.getState().user.user.username
+    let roomId = store.getState().room.room.id
+    let win = store.getState().room.room.win
+    let result = ""
+    let coordinate = IdToCoordinate(id)
+    console.log(id, coordinate)
     if(tiles[id].value === 0){
         tiles[id].value = turn
-        dispatch(game_tick(id, tiles))
+        dispatch(game_tick(id, tiles))        
         dispatch(handle_check_win())
-        dispatch(game_switch_turn())
-        
+        result = win === null ? "" : win === true ? "win" : "lose"
+        socket.emit('send-move',{
+            username,
+            roomId,
+            x: coordinate.x,
+            y: coordinate.y,
+            result
+        })
+        dispatch(game_switch_turn())        
     }   
 }
 export const handle_time_decrease = () => dispatch => {
@@ -200,10 +235,15 @@ const checkMinorDiagonal = ({rows, cols, lastTick, tiles, turn}) => {
     }
     return false
 }
-export const game_check_win = (win) => ({
-    type: GAME_CHECK_WIN,
-    win
-})
+export const game_check_win = (win) => dispatch => {
+    let host = store.getState().room.room.host.username
+    let currentUser = store.getState().user.user.username
+    dispatch({
+        type: GAME_CHECK_WIN,
+        win,
+        isHost: host === currentUser
+    })
+}
 export const game_end = () => ({
     type: GAME_END
 })
@@ -224,6 +264,18 @@ export const handle_check_win = () => dispatch => {
 export const game_start = () => ({
     type: GAME_START
 })
-export const game_play_again = () => ({
-    type: GAME_PLAY_AGAIN
-})
+export const handle_game_start = () => dispatch => {
+    let socket = store.getState().room.socket
+    let username = store.getState().user.user.username
+    let roomId = store.getState().room.room.id
+    socket.emit('start', {
+        username,
+        roomId
+    })
+}
+export const game_play_again = () => dispatch => {
+    dispatch(handle_game_start())
+    dispatch({
+        type: GAME_PLAY_AGAIN
+    })
+}

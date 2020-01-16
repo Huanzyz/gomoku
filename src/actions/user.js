@@ -1,5 +1,7 @@
 import api from '../api/api'
-import { setUsernameToStorage, getUsernameFromStorage, setJwtToStorage } from '../utils/utils'
+import { setUsernameToStorage, getUsernameFromStorage, setJwtToStorage, clearStorage } from '../utils/utils'
+import { toast } from 'react-toastify'
+import { room_set_authenticated } from '../actions/room'
 
 export const USER_INFO = "USER_INFO"
 export const USER_ERROR = "USER_ERROR"
@@ -10,6 +12,7 @@ export const USER_LOGIN_FAILURE = 'USER_LOGIN_FAILURE'
 export const USER_REGISTER_BEGIN = 'USER_REGISTER_BEGIN'
 export const USER_REGISTER_SUCCESS = 'USER_REGISTER_SUCCESS'
 export const USER_REGISTER_FAILURE = 'USER_REGISTER_FAILURE'
+export const USER_LOGOUT = 'USER_LOGOUT'
 
 
 export const user_info = user => ({
@@ -26,7 +29,7 @@ export const user_clear_error = () => ({
 
 export const get_user_info = () => dispatch => {
     let username = getUsernameFromStorage()
-    api.get('/users/',{
+    api.get('/users',{
         username
     })
     .then(res => {
@@ -71,20 +74,12 @@ export const handle_login_user = (username, password) => dispatch => {
         .then(res => {
             dispatch(user_login_success(res.data.user))
             setJwtToStorage(res.data.token)
+
         })
         .catch(err => {
             dispatch(user_login_failure())
             dispatch(user_error(err))
         })
-    //    setTimeout(()=>{
-    //         console.log(`Username: ${username} - Password: ${password}`)
-    //         let err = {
-    //             title: "Server error!",
-    //             detail: "Please try again later..."
-    //         }
-    //         dispatch(user_login_failure())
-    //         dispatch(user_error(err))
-    //    }, 5000)
     }
 }
 
@@ -138,21 +133,24 @@ export const handle_register_user = (username, password, confirmPassword) => dis
         },{})
         .then(res => {
             dispatch(user_register_success())
+            var getUrl = window.location;
+            var baseUrl = getUrl .protocol + "//" + getUrl.host + "/"
+            window.location.replace = baseUrl + "login"
+            toast.success("Register success! Please login ...")
+
         })
-        .catch(err => {
+        .catch(err => {            
             dispatch(user_register_failure())
             dispatch(user_error(err))
         })
-        
-    //    setTimeout(()=>{
-    //         console.log(`Username: ${username} - Password: ${password} - Confirm password: ${confirmPassword}`)
-    //         let err = {
-    //             title: "Server error!",
-    //             detail: "Please try again later..."
-    //         }
-    //         dispatch(user_register_failure())
-    //         dispatch(user_error(err))
-    //    }, 5000)
     }
+}
+
+export const user_logout = () => dispatch => {
+    clearStorage()
+    dispatch(room_set_authenticated(false))
+    dispatch({
+        type: USER_LOGOUT
+    })
 }
 

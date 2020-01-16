@@ -8,7 +8,10 @@ import {
     ROOM_SET_INFO,
     ROOM_CREATE_BEGIN,
     ROOM_CREATE_SUCCESS,
-    ROOM_CREATE_FAILURE
+    ROOM_CREATE_FAILURE,
+    ROOM_GUEST_JOIN,
+    ROOM_SOCKET,
+    ROOM_SET_AUTHENTICATED
 } from '../actions/room'
 
 const InitRoom = () => ({
@@ -27,25 +30,21 @@ const InitRoom = () => ({
             countLose: 30,
             rank: 1
         },
-        // guest: null,
-        guest: 
-        {
-            username: "cde",
-            avatar: "9",
-            points: 9000,
-            countWin: 100,
-            countDraw: 10,
-            countLose: 30,
-            rank: 5
-        },
+        guest: null,
         background: "5"
     },
     // room: {},
-    loading: false
+    loading: false,
+    authenticated: true
 })
 
 const room = (state = InitRoom(), action) => {
     switch(action.type){
+        case ROOM_SET_AUTHENTICATED:
+            return {
+                ...state,
+                authenticated: action.bool
+            }
         case ROOM_SEARCH_BEGIN:
             return {
                 ...state,
@@ -100,6 +99,16 @@ const room = (state = InitRoom(), action) => {
             return {
                 ... state,
                 loading: false
+            }
+        case ROOM_GUEST_JOIN:
+            return {
+                ...state,
+                room: action.room
+            }
+        case ROOM_SOCKET:
+            return {
+                ...state,
+                socket: action.socket
             }
         default:
             return state

@@ -1,3 +1,4 @@
+import { store } from '../index'
 export function getRandomColor(){
     let palette = [
         'linear-gradient(120.01deg, #0772B8 3.08%, #0798B8 56.03%)',
@@ -57,6 +58,7 @@ export function rankString(num){
         case 3: suffix = "rd";break;
         default: suffix = "th";break;
     }
+    // return 0;
     return num.toString() + suffix;
 }
 export function rateString(num){
@@ -74,12 +76,24 @@ export function shortenName(name, length){
 export function getBodyHeight(){
     var body = document.body,
         html = document.documentElement
+    var screenHeight = window.screen.height
 
     var height = Math.max( body.scrollHeight, body.offsetHeight, 
-                       html.clientHeight, html.scrollHeight, html.offsetHeight )
+                       html.clientHeight, html.scrollHeight, html.offsetHeight, screenHeight )
     return height
 }
 export function isAuthenticated() {
     let jwt = getJwtFromStorage();
     return (jwt !== null && jwt !== "");
+}
+export function coordinateToId(x, y){
+    let rows = store.getState().game.board.rows, cols = store.getState().game.board.cols
+    return x + y * cols
+}
+export function IdToCoordinate(id){
+    let cols = parseInt(store.getState().game.board.cols)
+    return {
+        x: id % cols,
+        y: id / cols
+    }
 }

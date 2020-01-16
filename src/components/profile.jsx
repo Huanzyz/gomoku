@@ -26,6 +26,7 @@ const Avatar = styled.div`
     background-color: white;
     margin-right: 2rem;
     position: relative;
+    text-align: center;
 `
 const SubWrapper = styled.div`
     display: flex;
@@ -59,16 +60,21 @@ const Username = styled.span`
     width: 100%;
 `
 class Profile extends Component {
+    componentDidMount(){
+        const { user } = this.props
+        this.props.getUserInfo(user.username)
+    }
     render() {
         const {
             user
         } = this.props
-        let countWin = parseInt(user.countWin);
-        let countTotal = countWin + parseInt(user.countDraw)+ parseInt(user.countLoose);
+        let countWin = parseInt(user.winCount);
+        let countTotal = countWin + parseInt(user.drawCount)+ parseInt(user.loseCount);
+        if(countTotal === 0) countTotal = 1
         return (
             <MainWrapper>
                 <SubWrapper>
-                    <Avatar url={user.avatar}>
+                    <Avatar url={`${process.env.PUBLIC_URL}/images/a${user.avatar}.svg`}>
                         <Username>{shortenName(user.username, 11)}</Username>
                     </Avatar>
                     <InfoWrapper>

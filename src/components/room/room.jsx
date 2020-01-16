@@ -103,12 +103,12 @@ class Room extends Component {
                 <SubWrapper>
                     <Info>
                         <Text>{room.roomName}</Text>
-                        <Host>Host: {room.host.username}</Host>
+                        <Host>Host: {room.host ? room.host.username: ""}</Host>
                     </Info>
                     <TinyWrapper>
                     <Point>
                         <Image src={process.env.PUBLIC_URL + '/images/diamond.svg'}></Image>
-                        <Text> {getFormattedStringForPoints(room.betPoints)}</Text>
+                        <Text> {getFormattedStringForPoints(room.betPoint)}</Text>
                     </Point>
                     <Image src={room.hasPassword? process.env.PUBLIC_URL + '/images/lock.svg': 'none'}></Image>
                     </TinyWrapper>

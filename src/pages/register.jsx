@@ -4,9 +4,10 @@ import { Row, Col } from 'react-bootstrap'
 import styled,{keyframes} from 'styled-components'
 import {Link as LinkRouter, Redirect} from 'react-router-dom'
 import Input from '../components/input'
-import { handle_register_user, user_clear_error } from '../actions/user'
+import { user_register_begin, user_register_success, user_register_failure, user_error, user_clear_error  } from '../actions/user'
 import { connect } from "react-redux"
 import api from '../api/api'
+import { toast } from 'react-toastify'
 
 const FormWrapper = styled.div`
     border: 3px solid #E0E0E0;
@@ -127,7 +128,9 @@ class Register extends Component {
             confirmPassword: ""
         }
     }    
-
+    componentDidMount(){
+        this.props.clearError()
+    }
     handleUsernameInput = e => {
         if(this.props.loading !== true) {
             this.props.clearError()
@@ -157,7 +160,56 @@ class Register extends Component {
         e.preventDefault()
         const {username, password, confirmPassword} = this.state
         if(this.props.loading !== true) {
-            this.props.handleRegister(username, password, confirmPassword)
+            this.props.userRegisterBegin()
+            if(username === ""){
+                let err = {
+                    title: "Empty username!",
+                    detail: "Please check your input again..."
+                }
+                this.props.userRegisterFailure()
+                this.props.userError(err)
+            }
+            else if(password === ""){
+                let err = {
+                    title: "Empty password!",
+                    detail: "Please check your input again..."
+                }
+                this.props.userRegisterFailure()
+                this.props.userError(err)
+            }
+            else if(confirmPassword === ""){
+                let err = {
+                    title: "Empty confirm password!",
+                    detail: "Please check your input again..."
+                }
+                this.props.userRegisterFailure()
+                this.props.userError(err)
+            }
+            else if(confirmPassword !== password){
+                let err = {
+                    title: "Confirm password doesn't match!",
+                    detail: "Please check your input again..."
+                }
+                this.props.userRegisterFailure()
+                this.props.userError(err)
+            }
+            else{        
+                api.post('/register',{
+                    username,
+                    password
+                },{})
+                .then(res => {
+                    this.props.userRegisterSuccess()
+                    this.setState({
+                        redirectToReferrer: true
+                    })
+                    toast.info("Register success! Please login ...")
+                })
+                .catch(err => {            
+                    this.props.userRegisterFailure()
+                    this.props.userError(err)
+                })
+            }
         }
 
     }
@@ -259,8 +311,11 @@ const mapStateToProps = state => ({
     errorInfo: state.user.errorInfo
 })
 const mapDispatchToProps = dispatch => ({
-    handleRegister: (username, password, confirmPassword) => dispatch(handle_register_user(username, password, confirmPassword)),
-    clearError: () => dispatch(user_clear_error())
+    clearError: () => dispatch(user_clear_error()),
+    userRegisterBegin: () => dispatch(user_register_begin()),
+    userRegisterSuccess: () => dispatch(user_register_success()),
+    userRegisterFailure: () => dispatch(user_register_failure()),
+    userError: (err) => dispatch(user_error(err))
 })
 export default connect(
     mapStateToProps,

@@ -10,7 +10,8 @@ import {
     GAME_CHECK_WIN,
     GAME_END,
     GAME_START,
-    GAME_PLAY_AGAIN
+    GAME_PLAY_AGAIN,
+    GAME_RESET_POINT
 } from '../actions/game'
 
 const initTiles = (rows, cols) => {
@@ -21,7 +22,7 @@ const initTiles = (rows, cols) => {
     return tiles
 }
 const initGame = () => ({
-    play: true,
+    play: false,
     board: {
         rows: 18,
         cols: 22,
@@ -85,7 +86,24 @@ const game = (state = initGame(), action) => {
                 }
             }
         case GAME_RESET:
-            return initGame()    
+            return {
+                play: true,
+                board: {
+                    rows: 18,
+                    cols: 22,
+                    time: 15, 
+                    max: 15,
+                    lastTick: -1,
+                    tileSize: '2rem',
+                    tiles: [],
+                    turn: 1,
+                    myTurn: 1,
+                    win: null,
+                    end: true
+                },
+                hostPoint: 0,
+                guestPoint: 0
+            }   
         case GAME_INIT_TILES:
             return {
                 ...state,
@@ -95,11 +113,19 @@ const game = (state = initGame(), action) => {
                 }
             }
         case GAME_CHECK_WIN:
-            console.log(action.win)
+            let hostPoint = state.hostPoint, guestPoint = state.guestPoint
+            if(action.win){
+                if(action.isHost) hostPoint++
+                else guestPoint++
+            }
+            else{
+                if(action.isHost) guestPoint++
+                else hostPoint++
+            }
             return {
                 ...state,
-                hostPoint: state.hostPoint + (action.win ? 1 : 0),
-                guestPoint: state.guestPoint + (action.win ? 0 : 1),
+                hostPoint,
+                guestPoint,
                 board: {
                     ...state.board,
                     win: action.win

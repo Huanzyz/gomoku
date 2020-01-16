@@ -1,9 +1,10 @@
 import axios from 'axios'
 import {getJwtFromStorage, isEmptyString, mergeConfig} from '../utils/utils'
 
-const host = 'http://localhost:8080'
+export const host = 'http://localhost:8080'
 const host_api = `${host}/api`
 const auth_type = "Bearer"
+export const host_socketio = 'http://localhost:8091'
 
 const instance = axios.create({
     baseURL: host_api

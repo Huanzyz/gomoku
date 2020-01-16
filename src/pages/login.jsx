@@ -4,9 +4,11 @@ import { Row, Col } from 'react-bootstrap'
 import styled, {keyframes} from 'styled-components'
 import {Link as LinkRouter, Redirect} from 'react-router-dom'
 import Input from '../components/input';
-import { handle_login_user, user_clear_error } from "../actions/user";
+import { user_clear_error, user_login_begin, user_login_success, user_login_failure, user_error } from "../actions/user";
 import { connect } from "react-redux"
 import api from '../api/api'
+import { setJwtToStorage, setUsernameToStorage } from '../utils/utils'
+import { room_set_authenticated } from '../actions/room'
 
 const FormWrapper = styled.div`
     border: 3px solid #E0E0E0;
@@ -127,7 +129,9 @@ class Login extends Component {
             password: ""
         }
     }  
-
+    componentDidMount(){
+        this.props.clearError()
+    }
     handleUsernameInput = e => {
         if(this.props.loading !== true){
             this.props.clearError()
@@ -148,7 +152,42 @@ class Login extends Component {
         e.preventDefault()
         const {username, password} = this.state
         if(this.props.loading !== true){
-            this.props.handleLogin(username, password)      
+            this.props.userLoginBegin()
+            if(username === ""){
+                let err = {
+                    title: "Empty username!",
+                    detail: "Please check your input again..."
+                }
+                this.props.userLoginFailure()
+                this.props.userError(err)
+            }
+            else if(password === ""){
+                let err = {
+                    title: "Empty password!",
+                    detail: "Please check your input again..."
+                }
+                this.props.userLoginFailure()
+                this.props.userError(err)
+            }
+            else{
+                api.post('/auth',{
+                    username,
+                    password
+                },{})
+                .then(res => {
+                    this.props.userLoginSuccess(res.data.user)
+                    setJwtToStorage(res.data.token)
+                    setUsernameToStorage(res.data.user.username)
+                    this.props.roomSetAuthenticate(true)
+                    this.setState({
+                        redirectToReferrer: true
+                    })
+                })
+                .catch(err => {
+                    this.props.userLoginFailure()
+                    this.props.userError(err)
+                })
+            }   
         }
     }
     render() {
@@ -233,8 +272,12 @@ const mapStateToProps = state => ({
     errorInfo: state.user.errorInfo
 })
 const mapDispatchToProps = dispatch => ({
-    handleLogin: (username, password) => dispatch(handle_login_user(username, password)),
-    clearError: () => dispatch(user_clear_error())
+    clearError: () => dispatch(user_clear_error()),
+    userLoginBegin: () => dispatch(user_login_begin()),
+    userLoginSuccess: (user) => dispatch(user_login_success(user)),
+    userLoginFailure: () => dispatch(user_login_failure()),
+    userError: (err) => dispatch(user_error(err)),
+    roomSetAuthenticate: (bool) => dispatch(room_set_authenticated(bool))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login)

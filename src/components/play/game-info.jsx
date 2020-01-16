@@ -91,17 +91,17 @@ class GameInfo extends Component{
                     </UserInfo>
                     <Result>-</Result>
                     <UserInfo>
-                        <UserName>{guest === null ? " " : shortenName(guest.username,8)}</UserName>
+                        <UserName>{(typeof guest === 'undefined' || guest === null) ? " " : shortenName(guest.username,8)}</UserName>
                         <RankingWrapper>
                             <RankingLogo />
-                            <span>{guest === null ? " " : rankString(guest.rank)}</span>
+                            <span>{(typeof guest === 'undefined' || guest === null) ? " " : rankString(guest.rank)}</span>
                         </RankingWrapper>
                     </UserInfo>
                 </SubWrapper>
                 <SubWrapper>
                     <Result style={{marginBottom: "3.8rem"}}>{hostPoint}</Result>
                     <AvatarWrapper>
-                        <RightAvatar src={process.env.PUBLIC_URL + `/images/${guest === null ? 'noname' : 'a' + guest.avatar}.svg`}/>
+                        <RightAvatar src={process.env.PUBLIC_URL + `/images/${(typeof guest === 'undefined' || guest === null) ? 'noname' : 'a' + guest.avatar}.svg`}/>
                         <CheckWrapper style={{right: '0'}}>
                             <X width="3rem" height="3rem" color="#EB5757"/>
                         </CheckWrapper>

@@ -5,27 +5,7 @@ import {
 } from '../actions/rank'
 
 const InitRank = () => ({
-    data: [
-        {
-            username: 'Den Vau',
-            points: 1000000
-        },
-        {
-            username: 'VuDinhTrongThang',
-            points: 500000
-        },
-        {
-            username: 'SonTungMTP',
-            points: 450000
-        },
-        {
-            username: 'Justatee',
-            points: 10000
-        },
-        {
-            username: 'MinMin123',
-            points: 9000
-        }
+    data: [      
     ],
     loading: false
 })
@@ -39,7 +19,7 @@ const rank = (state = InitRank(), action) => {
         case RANK_INFO_SUCCESS: 
             return{
                 ...state,
-                data: action.data,
+                data: (action.data),
                 loading: false
             }
         case RANK_INFO_FAILURE:

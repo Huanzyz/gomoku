@@ -74,6 +74,12 @@ const WidthLimitContainer = styled.div`
     height: 100%;
 `
 class Play extends Component{  
+    constructor(){
+        super()
+        // window.onbeforeunload = function() {
+        //     return "Dude, are you sure you want to leave? Think of the kittens!";
+        // }
+    }
     componentDidMount(){
         const { board } = this.props
         if(board.tiles.length === 0){

@@ -12,6 +12,7 @@ const MainWrapper = styled.div`
     padding: 1.5rem; 
     z-index: 4;
     background-color: white;
+    min-height: 6.75rem;
 `
 const BetPointsWrapper= styled.div`
     display: flex;
@@ -42,7 +43,8 @@ class GameBar extends Component{
     }
     render(){
         const {
-            guest
+            guest,
+            roomID
         } = this.props;
 
         return(
@@ -52,8 +54,8 @@ class GameBar extends Component{
                     <BetPointsLogo src={process.env.PUBLIC_URL + '/images/diamond.svg'} />
                 </BetPointsWrapper>
                 <ButtonWrapper>
-                    {guest === null? 
-                        <span style={{fontSize: '1.25rem'}}>Room ID: <b>DeNvAuxxx</b></span>
+                    {(typeof guest === 'undefined' || guest === null)? 
+                        <span style={{fontSize: '1.25rem'}}>Room ID: <b>{roomID}</b></span>
                         :
                         <GameControlButton/>
                     }
@@ -63,7 +65,8 @@ class GameBar extends Component{
     }
 }
 const mapStateToProps = state => ({
-    guest: state.room.room.guest
+    guest: state.room.room.guest,
+    roomID: state.room.room.id
 })
 const mapDispatchToProps = dispatch => ({
     handleQuitGame: () => dispatch(game_quit())

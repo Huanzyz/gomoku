@@ -7,6 +7,7 @@ import Dashboard from '../../pages/dashboard'
 import Play from '../../pages/play'
 import PrivateRoute from '../private-route'
 
+
 class App extends Component {
   render() {
     return (

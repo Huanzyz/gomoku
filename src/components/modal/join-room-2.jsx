@@ -180,7 +180,7 @@ class JoinRoom extends Component {
 const mapStateToProps = state => ({
     roomID: state.room.room.id,
     isLock: state.room.room.hasPassword,
-    betPoints: state.room.room.betPoints,
+    betPoints: state.room.room.betPoint,
     loading: state.room.loading,
     error: state.modal.error,
     errorInfo: state.modal.errorInfo

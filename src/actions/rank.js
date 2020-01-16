@@ -19,7 +19,7 @@ export const get_rank_info = () => dispatch => {
     dispatch(rank_info_begin())
     api.get('/rank',{})
     .then(res => {
-        dispatch(rank_info_success(res.data))
+        dispatch(rank_info_success(res.data.ranking))
     })
     .catch(err => {
         dispatch(rank_info_failure())

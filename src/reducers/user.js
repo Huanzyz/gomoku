@@ -7,7 +7,8 @@ import {
     USER_LOGIN_FAILURE,
     USER_REGISTER_BEGIN,
     USER_REGISTER_SUCCESS,
-    USER_REGISTER_FAILURE
+    USER_REGISTER_FAILURE,
+    USER_LOGOUT
 } from '../actions/user'
 
 const initUser = () => {
@@ -33,6 +34,7 @@ const user = (state = initUser(), action) => {
     switch(action.type){
         case USER_INFO:
             return {
+                ...state,
                 user: action.user
             }
         case USER_ERROR:
@@ -82,6 +84,8 @@ const user = (state = initUser(), action) => {
                 loading: false,
                 error: true
             }
+        case USER_LOGOUT:
+            return initUser()
         default:
             return state;
     }

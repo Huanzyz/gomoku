@@ -1,12 +1,18 @@
-import api from '../api/api'
+import api, {host_socketio} from '../api/api'
 import {
     modal_open,
     modal_error
 } from '../actions/modal'
 import {
-    game_open
+    game_open, game_init_tiles
 } from '../actions/game'
 import { store } from '../index'
+import { getRandomNumber } from '../utils/utils'
+import socketIOClient from "socket.io-client"
+import { list_room_info_success } from './list-room'
+import { rank_info_success } from './rank'
+import { game_start, handle_game_tick, handle_game_assign_turn, game_check_win, game_reset } from './game'
+import { coordinateToId } from '../utils/utils'
 
 export const ROOM_SEARCH_BEGIN = 'ROOM_SEARCH_BEGIN'
 export const ROOM_SEARCH_SUCCESS = 'ROOM_SEARCH_SUCCESS'
@@ -18,7 +24,15 @@ export const ROOM_CREATE_BEGIN = 'ROOM_CREATE_BEGIN'
 export const ROOM_CREATE_SUCCESS = 'ROOM_CREATE_SUCCESS'
 export const ROOM_CREATE_FAILURE = 'ROOM_CREATE_FAILURE'
 export const ROOM_SET_INFO = 'ROOM_SET_INFO'
+export const EMPTY = 'EMPTY'
+export const ROOM_GUEST_JOIN = 'ROOM_GUEST_JOIN'
+export const ROOM_SOCKET = 'ROOM_SOCKET'
+export const ROOM_SET_AUTHENTICATED = 'ROOM_SET_AUTHENTICATED'
 
+export const room_set_authenticated = (bool) => ({
+    type: ROOM_SET_AUTHENTICATED,
+    bool
+})
 export const room_search_begin = () => ({
     type: ROOM_SEARCH_BEGIN
 })
@@ -41,49 +55,17 @@ export const handle_search_room = (id) => dispatch => {
         dispatch(modal_error(err))
     }
     else{
-        /*
         api.get('/room/search', {
             id
         })
-            .then(res => {
-                dispatch(room_search_success(res.data))
-                dispatch(modal_open(2))
-            })
-            .then(err => {
-                dispatch(room_search_failure())
-                dispatch(modal_error(err))
-            })
-        */
-
-        // setTimeout(() => {
-        //     let err = {
-        //         title: "Room is full!",
-        //         detail: "Please pick another room ..."
-        //     }
-        //     dispatch(room_search_failure())
-        //     dispatch(modal_error(err))
-        // }, 10000)
-        setTimeout(() => {
-                let data = {
-                    id: "8aaf253097",
-                    roomName: "abc",
-                    betPoints: 1000,
-                    hasPassword: true,
-                    host: 
-                    {
-                        username: "abc",
-                        avatar: "1",
-                        points: 10000,
-                        countWin: 100,
-                        countDraw: 10,
-                        countLose: 30
-                    },
-                    guest: null,
-                    background: "5"
-                }
-                dispatch(room_search_success(data))
-                dispatch(modal_open(2))
-        }, 2000)
+        .then(res => {
+            dispatch(room_search_success(res.data))
+            dispatch(modal_open(2))
+        })
+        .then(err => {
+            dispatch(room_search_failure())
+            dispatch(modal_error(err))
+        })
     }
 }
 
@@ -100,6 +82,7 @@ export const room_join_failure = () => ({
 export const handle_join_room = (id, password) => dispatch => {
     dispatch(room_join_begin())
     let isLock = store.getState().room.room.hasPassword
+
     if(isLock){
         if(password === ""){
             let err = {
@@ -110,53 +93,25 @@ export const handle_join_room = (id, password) => dispatch => {
             dispatch(modal_error(err))
         }
         else{
-            /*
-        api.post('/room/join', {
-            id,
-            password
-        })
-        .then(res => {
-            dispatch(room_join_success(res.data))   
-            dispatch(game_open())     
-        })
-        .catch(err => {
-            dispatch(room_join_failure())
-            dispatch(modal_error(err))
-        })
-        */
-    
-        setTimeout(() => {
-            dispatch(room_join_failure())
-            dispatch(modal_error({
-                title: "Room is full!",
-                detail: "Please pick another room ..."
-            }))
-        }, 3000)
+            let socket = store.getState().room.socket
+            let host = store.getState().user.user.username
+            socket.emit('join', {
+                roomId: id,
+                username: host,
+                password
+            })
+      
         }
     }
     else{
-        /*
-        api.post('/room/join', {
-            id,
+        let socket = store.getState().room.socket
+        let host = store.getState().user.user.username
+
+        socket.emit('join', {
+            roomId: id,
+            username: host,
             password
         })
-        .then(res => {
-            dispatch(room_join_success(res.data))    
-            dispatch(game_open())    
-        })
-        .catch(err => {
-            dispatch(room_join_failure())
-            dispatch(modal_error(err))
-        })
-        */
-    
-        setTimeout(() => {
-            dispatch(room_join_failure())
-            dispatch(modal_error({
-                title: "Room is full!",
-                detail: "Please pick another room ..."
-            }))
-        }, 3000)
     }
 }
 
@@ -173,6 +128,7 @@ export const room_create_failure = () => ({
 export const handle_create_room = (roomName, betPoints, password) => dispatch => {
     dispatch(room_create_begin())
     let accountPoints = store.getState().user.user.points
+
     if(roomName === ""){
         dispatch(room_create_failure())
         dispatch(modal_error({
@@ -196,30 +152,13 @@ export const handle_create_room = (roomName, betPoints, password) => dispatch =>
     }
     else {
         let host = store.getState().user.user.username
-        /*
-        api.post('/room', {
+        let socket = store.getState().room.socket
+        socket.emit('create', {
             roomName,
-            betPoints,
-            background: getRandomNumber(),
+            betPoint: betPoints,
             password,
-            host
-        }, {})
-        .then(res => {
-            dispatch(room_create_success(res.data))
-            dispatch(game_open())
+            username: host
         })
-        .catch(err => {
-            dispatch(room_create_failure())
-            dispatch(modal_error(err))
-        })*/
-        setTimeout(() => {
-            console.log(`Host: ${host} - Room's name: ${roomName} - Bet points: ${betPoints} - Password: ${password}`)
-            dispatch(room_join_failure())
-            dispatch(modal_error({
-                title: "Server error!",
-                detail: "Please try again ..."
-            }))
-        }, 3000)
     }
 }
 
@@ -227,3 +166,79 @@ export const room_set_info = (room) => ({
     type: ROOM_SET_INFO,
     room
 })
+
+export const room_guest_join = (room) => ({
+    type: ROOM_GUEST_JOIN,
+    room
+})
+
+export const room_socket = (socket) => ({
+    type: ROOM_SOCKET,
+    socket
+})
+
+export const initialSocketIO = () => dispatch => {
+    if(store.getState().room.socket !== undefined)  return ({ type: EMPTY })
+    const socket = socketIOClient(host_socketio)
+
+    socket.on('listen-interval-rooms', data => {
+        dispatch(list_room_info_success(data.rooms))
+    })
+
+    socket.on('listen-interval-rank', data => {
+        dispatch(rank_info_success(data.ranking))
+    })
+    
+    socket.on('listen-create', data => {
+        if(data.code === 200){
+            dispatch(room_create_success(data.room))
+            dispatch(game_open())
+            dispatch(handle_game_assign_turn())
+        }
+        else{
+            dispatch(room_create_failure())
+            dispatch(modal_error(data.error))
+        }
+    })
+
+    socket.on('listen-join', data => {
+        if(data.code === 200){
+            dispatch(room_join_success(data.room))
+            dispatch(game_open())
+            dispatch(handle_game_assign_turn())
+        }
+        else{
+            dispatch(room_join_failure())
+            dispatch(modal_error(data.error))
+        }
+    })
+
+    socket.on('listen-guest-join', data => {
+
+        dispatch(room_guest_join(data))
+        dispatch(handle_game_assign_turn())
+    })
+
+    socket.on('listen-start', data => {
+        if(data === 'go') 
+            dispatch(game_start())
+            dispatch(game_init_tiles())
+    })
+
+    socket.on('listen-move', data => {
+        let tiles = store.getState().game.board.tiles
+        dispatch(handle_game_tick(coordinateToId(data.x, data.y), tiles))
+    })
+
+    socket.on('listen-opponent-out-room', data => {
+        let play = store.getState().game.play
+        if(play){
+            dispatch(game_check_win(true))
+            dispatch(room_set_info(data))
+            dispatch(handle_game_assign_turn())
+            dispatch(game_reset())
+        }
+    })
+
+    dispatch(room_socket(socket))
+}

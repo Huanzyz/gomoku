@@ -18,7 +18,7 @@ export const list_room_info_failure = () => ({
 export const get_list_room_info = () => dispatch => {
     dispatch(list_room_info_begin())
     api.get('/rooms', {})
-    .then(res => dispatch(list_room_info_success(res.data)))
+    .then(res => dispatch(list_room_info_success(res.data.rooms)))
     .catch(err => {
         dispatch(list_room_info_failure())
         toast.error("Failed to get list of rooms' info! Try again!")

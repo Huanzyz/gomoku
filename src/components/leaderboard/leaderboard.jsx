@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import {connect} from 'react-redux'
 import { get_rank_info } from '../../actions/rank'
 import { rankString } from '../../utils/utils'
-import { compose } from 'redux'
+import PerfectScrollbar from "react-perfect-scrollbar"
 
 const MainWrapper = styled.div`
     display: flex;
@@ -30,7 +30,14 @@ const Title = styled.span`
     font-family: Gochi-Hand;
     font-size: 2.624rem;
 `
+const ListWrapper = styled.div`
+    height: 19.625rem;
+    padding-right: ${props => props.quantity > 6 ? "1.5rem" : "0"}
+`
 class Leaderboard extends Component { 
+    componentDidMount(){
+        this.props.getRankInfo()
+    }
     render() { 
         const {
             ranking,
@@ -49,9 +56,13 @@ class Leaderboard extends Component {
                         onClick={getRankInfo} 
                     />
                 </TitleWrapper>
-                {
-                    ranking.map((e, index) => <Item key={index} rank={rankString(index + 1)} username={e.username} point={e.points}/>)
-                }
+                <PerfectScrollbar>
+                    <ListWrapper quantity={ranking.length}>
+                    {
+                        ranking.map((e, index) => <Item key={index} rank={rankString(index + 1)} username={e.username} point={e.points}/>)
+                    }
+                    </ListWrapper>
+                </PerfectScrollbar>
             </MainWrapper>
         )
     }

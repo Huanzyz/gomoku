@@ -34,7 +34,7 @@ class Button extends Component{
             onClick
         } = this.props
         return(
-            <ButtonWrapper color={color} onClick={onClick}>
+            <ButtonWrapper color={color} onClick={onClick} >
                 <Logo before={before} after={after}/>
             </ButtonWrapper>
         )
