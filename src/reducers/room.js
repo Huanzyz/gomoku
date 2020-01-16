@@ -11,7 +11,8 @@ import {
     ROOM_CREATE_FAILURE,
     ROOM_GUEST_JOIN,
     ROOM_SOCKET,
-    ROOM_SET_AUTHENTICATED
+    ROOM_SET_AUTHENTICATED,
+    ROOM_PUSH_CHAT
 } from '../actions/room'
 
 const InitRoom = () => ({
@@ -33,6 +34,7 @@ const InitRoom = () => ({
         guest: null,
         background: "5"
     },
+    chat: [],
     // room: {},
     loading: false,
     authenticated: true
@@ -109,6 +111,13 @@ const room = (state = InitRoom(), action) => {
             return {
                 ...state,
                 socket: action.socket
+            }
+        case ROOM_PUSH_CHAT:
+            let chat = [...state.chat]
+            chat.push(action.chat)
+            return {
+                ...state,
+                chat
             }
         default:
             return state

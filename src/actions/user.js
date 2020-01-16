@@ -139,7 +139,7 @@ export const handle_register_user = (username, password, confirmPassword) => dis
             toast.success("Register success! Please login ...")
 
         })
-        .catch(err => {            
+        .catch(err => {        
             dispatch(user_register_failure())
             dispatch(user_error(err))
         })

@@ -73,7 +73,6 @@ export const handle_game_tick = id => dispatch => {
     let win = store.getState().room.room.win
     let result = ""
     let coordinate = IdToCoordinate(id)
-    console.log(id, coordinate)
     if(tiles[id].value === 0){
         tiles[id].value = turn
         dispatch(game_tick(id, tiles))        

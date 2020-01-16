@@ -12,7 +12,7 @@ import socketIOClient from "socket.io-client"
 import { list_room_info_success } from './list-room'
 import { rank_info_success } from './rank'
 import { game_start, handle_game_tick, handle_game_assign_turn, game_check_win, game_reset } from './game'
-import { coordinateToId } from '../utils/utils'
+import { coordinateToId, getCurrentTime } from '../utils/utils'
 
 export const ROOM_SEARCH_BEGIN = 'ROOM_SEARCH_BEGIN'
 export const ROOM_SEARCH_SUCCESS = 'ROOM_SEARCH_SUCCESS'
@@ -28,6 +28,7 @@ export const EMPTY = 'EMPTY'
 export const ROOM_GUEST_JOIN = 'ROOM_GUEST_JOIN'
 export const ROOM_SOCKET = 'ROOM_SOCKET'
 export const ROOM_SET_AUTHENTICATED = 'ROOM_SET_AUTHENTICATED'
+export const ROOM_PUSH_CHAT = 'ROOM_PUSH_CHAT'
 
 export const room_set_authenticated = (bool) => ({
     type: ROOM_SET_AUTHENTICATED,
@@ -177,6 +178,27 @@ export const room_socket = (socket) => ({
     socket
 })
 
+export const room_push_chat = (chat) => ({
+    type: ROOM_PUSH_CHAT,
+    chat
+})
+
+export const room_send_message = message => dispatch => {
+    let socket = store.getState().room.socket
+    let username = store.getState().user.user.username
+    let roomId = store.getState().room.room.id
+    socket.emit('send-message', {
+        username,
+        roomId,
+        message
+    })
+    dispatch(room_push_chat({
+        content: message,
+        right: true,
+        createAt: getCurrentTime()
+    }))
+}
+
 export const initialSocketIO = () => dispatch => {
     if(store.getState().room.socket !== undefined)  return ({ type: EMPTY })
     const socket = socketIOClient(host_socketio)
@@ -238,6 +260,13 @@ export const initialSocketIO = () => dispatch => {
             dispatch(handle_game_assign_turn())
             dispatch(game_reset())
         }
+    })
+    socket.on('listen-message', data => {
+        dispatch(room_push_chat({
+            content: data.message,
+            right: false,
+            createAt: getCurrentTime()
+        }))
     })
 
     dispatch(room_socket(socket))

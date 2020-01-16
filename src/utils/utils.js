@@ -97,3 +97,7 @@ export function IdToCoordinate(id){
         y: id / cols
     }
 }
+export function getCurrentTime(){
+    let time = new Date()
+    return time.getHours().toString() + ":" + time.getMinutes().toString()
+}

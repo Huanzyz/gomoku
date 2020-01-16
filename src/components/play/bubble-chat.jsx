@@ -4,6 +4,7 @@ import styled from 'styled-components'
 const Wrapper = styled.div`
     display: flex;
     justify-content: ${props => props.right? 'flex-end' : 'flex-start'}
+    margin-top: 3px;
 `
 const Chat = styled.div`
     border-radius: 5px;

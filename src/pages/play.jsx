@@ -74,17 +74,20 @@ const WidthLimitContainer = styled.div`
     height: 100%;
 `
 class Play extends Component{  
-    constructor(){
-        super()
-        // window.onbeforeunload = function() {
-        //     return "Dude, are you sure you want to leave? Think of the kittens!";
-        // }
+    onUnload = event => {
+        event.preventDefault()
+        // event.returnValue = ''
+        this.props.handleQuitGame()
     }
     componentDidMount(){
+        window.addEventListener("beforeunload", this.onUnload);
         const { board } = this.props
         if(board.tiles.length === 0){
             this.props.handleInitTiles()
         }    
+    }
+    componentWillUnmount() {
+        window.removeEventListener("beforeunload", this.onUnload);
     }
     render(){
         const {

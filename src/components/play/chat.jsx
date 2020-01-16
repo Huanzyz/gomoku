@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import styled from 'styled-components'
 import BubbleChat from './bubble-chat'
 import PerfectScrollbar from "react-perfect-scrollbar"
+import { connect } from 'react-redux'
+import { room_send_message } from '../../actions/room'
 
 const MainWrapper = styled.div`
     border: 3px solid #E0E0E0;
@@ -81,59 +83,73 @@ const BackDrop = styled.div`
 `
 class Chat extends Component {
     state = {
-        waiting: true,
-        chats: [
-            {
-                content: 'hi! You ready?',
-                createAt: '15:58',
-                right: true
-            },
-            {
-                content: `yeah! Let's do it!`,
-                createAt: '15:58',
-                right: false
-            },
-            {
-                content: 'OK',
-                createAt: '15:59',
-                right: true
-            },
-            {
-                content: `Eiii I'm in! Where are you?`,
-                createAt: '16:01',
-                right: false
-            },
-            {
-                content: 'Lost connection! Id diam vel quam elementum pulvinar etiam. Pellentesque habitant morbi tristique senectus et netus et. Risus in hendrerit gravida rutrum quisque. Facilisis leo vel fringilla est ullamcorper eget. Egestas diam in arcu cursus euismod. Aliquam id diam maecenas ultricies mi eget mauris pharetra. Fermentum odio eu feugiat pretium nibh ipsum. In hac habitasse platea dictumst quisque. Imperdiet dui accumsan sit amet nulla facilisi morbi. Pellentesque id nibh tortor id aliquet lectus.',
-                createAt: '16:01',
-                right: true
-            },
-        ]
+        message: ""
     }
-
+    handleMessageChange = e => {
+        this.setState({
+            message: e.target.value
+        })
+    }
+    handleSubmit = () => {
+        const { message } = this.state
+        if(message !== ""){
+            this.props.handleSendMessage(message)
+            this.setState({
+                message: ""
+            })
+        }
+    }
+    handleEnterSubmit = (e) => {
+        if(e.charCode === 13) {
+            this.handleSubmit()
+        }
+    }
     render() {
-        const { chats, waiting } = this.state;
+        const {
+            message
+        } = this.state
+        const {
+            chat,
+            guest
+        } = this.props
         return (
             <MainWrapper>
-                {waiting && <BackDrop/>}
-                <ChatTitle>{waiting? 'Waiting...' : 'Chat' }</ChatTitle>
+                {(guest === null || typeof guest === 'undefined') && <BackDrop/>}
+                <ChatTitle>{(guest === null || typeof guest === 'undefined')? 'Waiting...' : 'Chat' }</ChatTitle>
                 <ChatLogo />
                 <Body id="body">
-                    {!waiting &&
-                    <PerfectScrollbar >
-                        {chats.map((c, index) => (
+                    {chat.length > 3 ?
+                        <PerfectScrollbar>
+                        {chat.map((c, index) => (
                             <BubbleChat key={index} {...c} />
                         ))} 
-                    </PerfectScrollbar>
+                        </PerfectScrollbar>
+                        :
+                        <React.Fragment>
+                        {chat.map((c, index) => (
+                            <BubbleChat key={index} {...c} />
+                        ))} 
+                        </React.Fragment>
                     }
                 </Body>
                 <Line />
                 <InputWrapper>
-                    <Input />
-                    <Button>SEND</Button>
+                    <Input value={message} onChange={this.handleMessageChange} onKeyPress={this.handleEnterSubmit}/>
+                    <Button onClick={this.handleSubmit}>SEND</Button>
                 </InputWrapper>
             </MainWrapper>
         )
     }
 }
-export default Chat
+const mapStateToProps = state => ({
+    chat: state.room.chat,
+    guest: state.room.room.guest,
+    socket: state.room.socket
+})
+const mapDispatchToProps = dispatch => ({
+    handleSendMessage: (message) => dispatch(room_send_message(message))
+})
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Chat)
