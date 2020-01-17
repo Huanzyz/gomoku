@@ -9,9 +9,8 @@ import GameInfo from '../components/play/game-info'
 import Chat from '../components/play/chat'
 import { 
     game_quit, 
-    handle_time_decrease, 
     game_switch_turn,
-    game_tick ,
+    game_reset,
     game_init_tiles
 } from '../actions/game'
 import { connect } from 'react-redux'
@@ -76,6 +75,7 @@ const WidthLimitContainer = styled.div`
 class Play extends Component{  
     onUnload = event => {
         event.preventDefault()
+        this.props.handleResetGame()
         // event.returnValue = ''
         this.props.handleQuitGame()
     }
@@ -140,7 +140,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     handleInitTiles: () => dispatch(game_init_tiles()),
     handleSwitchTurn: () => dispatch(game_switch_turn()),
-    handleQuitGame: () => dispatch(game_quit())
+    handleQuitGame: () => dispatch(game_quit()),
+    handleResetGame: () => dispatch(game_reset())
 })
 export default connect(
     mapStateToProps,

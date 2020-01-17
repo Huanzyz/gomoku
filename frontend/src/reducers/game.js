@@ -10,8 +10,7 @@ import {
     GAME_CHECK_WIN,
     GAME_END,
     GAME_START,
-    GAME_PLAY_AGAIN,
-    GAME_RESET_POINT
+    GAME_PLAY_AGAIN
 } from '../actions/game'
 
 const initTiles = (rows, cols) => {
@@ -145,6 +144,8 @@ const game = (state = initGame(), action) => {
                 ...state,
                 board: {
                     ...state.board,
+                    win: null,
+                    lastTick: -1,
                     end: false
                 }
             }

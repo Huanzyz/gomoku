@@ -187,7 +187,7 @@ class Login extends Component {
                     console.log(err)
                     console.log(err.response)
                     this.props.userLoginFailure()
-                    this.props.userError(err)
+                    this.props.userError(err.response.data.error)
                 })
             }   
         }

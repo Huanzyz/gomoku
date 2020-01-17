@@ -1,6 +1,7 @@
 import {store} from '../index'
 import { IdToCoordinate } from '../utils/utils'
 import { modal_close } from './modal'
+import { get_list_room_info } from './list-room'
 
 export const CHESS_X = 1;
 export const CHESS_O = 2;
@@ -32,9 +33,11 @@ export const game_quit = () => dispatch => {
         username,
         roomId
     })
+    dispatch(game_reset())
     dispatch({
         type: GAME_QUIT
     })
+    dispatch(get_list_room_info())
 }
 export const game_time_decrease = () => ({
     type: GAME_TIME_DECREASE
@@ -70,14 +73,12 @@ export const handle_game_tick = id => dispatch => {
     let socket = store.getState().room.socket
     let username = store.getState().user.user.username
     let roomId = store.getState().room.room.id
-    let win = store.getState().room.room.win
+    let win = store.getState().game.board.win
     let result = ""
     let coordinate = IdToCoordinate(id)
+    console.log('win', win)
     if(tiles[id].value === 0){
-        tiles[id].value = turn
-        dispatch(game_tick(id, tiles))        
-        dispatch(handle_check_win())
-        result = win === null ? "" : win === true ? "win" : "lose"
+        result = win === null ? "" : (win === true ? "win" : "lose")
         socket.emit('send-move',{
             username,
             roomId,
@@ -85,6 +86,17 @@ export const handle_game_tick = id => dispatch => {
             y: coordinate.y,
             result
         })
+        let resTiles = [...tiles]
+        resTiles[id].value = turn
+        console.log('send-move:', {
+            username,
+            roomId,
+            x: coordinate.x,
+            y: coordinate.y,
+            result
+        })
+        dispatch(game_tick(id, resTiles))        
+        dispatch(handle_check_win())
         dispatch(game_switch_turn())        
     }   
 }

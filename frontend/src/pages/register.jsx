@@ -206,10 +206,8 @@ class Register extends Component {
                     toast.info("Register success! Please login ...")
                 })
                 .catch(err => {    
-                    console.log('here')
-                    console.log(err.response)      
                     this.props.userRegisterFailure()
-                    this.props.userError(err)
+                    this.props.userError(err.response.data.error)
                 })
             }
         }
