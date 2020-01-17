@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import GameControlButton from './game-control-button'
 import { game_quit } from '../../actions/game'
 import { connect } from 'react-redux'
+import { getFormattedStringForPoints } from '../../utils/utils'
 
 const MainWrapper = styled.div`
     display: flex;
@@ -44,13 +45,14 @@ class GameBar extends Component{
     render(){
         const {
             guest,
-            roomID
+            roomID,
+            betPoint
         } = this.props;
 
         return(
             <MainWrapper>
                 <BetPointsWrapper>
-                    <span>Bet: <b>10.000</b> pts</span>
+                    <span>Bet: <b>{getFormattedStringForPoints(betPoint)}</b> pts</span>
                     <BetPointsLogo src={process.env.PUBLIC_URL + '/images/diamond.svg'} />
                 </BetPointsWrapper>
                 <ButtonWrapper>
@@ -66,6 +68,7 @@ class GameBar extends Component{
 }
 const mapStateToProps = state => ({
     guest: state.room.room.guest,
+    betPoint: state.room.room.betPoint,
     roomID: state.room.room.id
 })
 const mapDispatchToProps = dispatch => ({
