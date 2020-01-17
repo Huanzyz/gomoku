@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import Main from './main'
 import { Row, Col } from 'react-bootstrap'
-import styled,{keyframes} from 'styled-components'
+import styled, {keyframes} from 'styled-components'
 import {Link as LinkRouter, Redirect} from 'react-router-dom'
-import Input from '../components/input'
-import { user_register_begin, user_register_success, user_register_failure, user_error, user_clear_error  } from '../actions/user'
+import Input from '../components/input';
+import { user_clear_error, user_login_begin, user_login_success, user_login_failure, user_error } from "../actions/user";
 import { connect } from "react-redux"
 import api from '../api/api'
-import { toast } from 'react-toastify'
+import { setJwtToStorage, setUsernameToStorage } from '../utils/utils'
+import { room_set_authenticated } from '../actions/room'
 
 const FormWrapper = styled.div`
     border: 3px solid #E0E0E0;
@@ -38,14 +39,14 @@ const Alert = styled.span`
     transition: opacity 0.5s linear;
 `
 const Button = styled.button`
-    background-color: #18A09C;
+    background-color: #0772B8;
     border-radius: 5px;
     height: 2.25rem;
     color: white;
     font-family: Raleway-SemiBold;
     border: none;
     :hover{
-        background-color: #01A3A4;
+        background-color: #007BFF;
     }
     transition: background-color 0.2s linear;
     margin-top: 2rem;
@@ -74,11 +75,12 @@ const LinkWrapper = styled.div`
 `
 const Link = styled.span`
     font-family: Raleway-SemiBold;
-    font-size: 1rem;    
+    font-size: 1rem;
+    margin-top: 3rem;
     cursor: pointer;
-    color: black;
+    color: black !important;
     :hover {
-        color: #18A09C !important;
+        color: #0772B8 !important;
         text-decoration: underline !important;
     }
 `
@@ -118,55 +120,45 @@ const LoadingLogo = styled.div`
     background-image: url(/images/white-refresh.svg);
     animation: ${rotate} 1s linear infinite;
 `
-class Register extends Component {
+class Login extends Component {
     constructor(props){
         super(props);
         this.state = {
-            redirectToReferrer: false, 
-            username : "",
-            password: "",
-            confirmPassword: ""
+            redirectToReferrer: false,  
+            username: "",
+            password: ""
         }
-    }    
+    }  
     componentDidMount(){
         this.props.clearError()
     }
     handleUsernameInput = e => {
-        if(this.props.loading !== true) {
+        if(this.props.loading !== true){
             this.props.clearError()
             this.setState({
-                username: e.target.value
+                username: e.target.value            
             })
         }
-        
     }
     handlePasswordInput = e => {
-        if(this.props.loading !== true) {
+        if(this.props.loading !== true){
             this.props.clearError()
             this.setState({
                 password: e.target.value
             })
         }
     }
-    handleConfirmPasswordInput = e => {
-        if(this.props.loading !== true) {
-            this.props.clearError()
-            this.setState({
-                confirmPassword: e.target.value
-            })
-        }
-    }
-    handleSubmit = e => {
+    handleSubmit = (e) => {
         e.preventDefault()
-        const {username, password, confirmPassword} = this.state
-        if(this.props.loading !== true) {
-            this.props.userRegisterBegin()
+        const {username, password} = this.state
+        if(this.props.loading !== true){
+            this.props.userLoginBegin()
             if(username === ""){
                 let err = {
                     title: "Empty username!",
                     detail: "Please check your input again..."
                 }
-                this.props.userRegisterFailure()
+                this.props.userLoginFailure()
                 this.props.userError(err)
             }
             else if(password === ""){
@@ -174,65 +166,47 @@ class Register extends Component {
                     title: "Empty password!",
                     detail: "Please check your input again..."
                 }
-                this.props.userRegisterFailure()
+                this.props.userLoginFailure()
                 this.props.userError(err)
             }
-            else if(confirmPassword === ""){
-                let err = {
-                    title: "Empty confirm password!",
-                    detail: "Please check your input again..."
-                }
-                this.props.userRegisterFailure()
-                this.props.userError(err)
-            }
-            else if(confirmPassword !== password){
-                let err = {
-                    title: "Confirm password doesn't match!",
-                    detail: "Please check your input again..."
-                }
-                this.props.userRegisterFailure()
-                this.props.userError(err)
-            }
-            else{        
-                api.post('/register',{
+            else{
+                api.post('/auth',{
                     username,
                     password
                 },{})
                 .then(res => {
-                    this.props.userRegisterSuccess()
+                    this.props.userLoginSuccess(res.data.user)
+                    setJwtToStorage(res.data.token)
+                    setUsernameToStorage(res.data.user.username)
+                    this.props.roomSetAuthenticate(true)
                     this.setState({
                         redirectToReferrer: true
                     })
-                    toast.info("Register success! Please login ...")
                 })
-                .catch(err => {    
-                    console.log('here')
-                    console.log(err)      
-                    this.props.userRegisterFailure()
+                .catch(err => {
+                    console.log(err)
+                    console.log(err.response)
+                    this.props.userLoginFailure()
                     this.props.userError(err)
                 })
-            }
+            }   
         }
-
     }
     render() {
-        const {redirectToReferrer} = this.state;
-
-        if(redirectToReferrer === true) {
-            return <Redirect to="/" />
+        const {from} = this.props.location.state || {from: {pathname: "/"}};
+        const {redirectToReferrer} = this.state;        
+        if(redirectToReferrer === true){
+            return <Redirect to={from} />
         }
-        let {
+        const {
             username, 
-            password, 
-            confirmPassword
+            password
         } = this.state;
-        let {
+        const {
             loading,
             error,
-            errorInfo,
-            handleRegister
+            errorInfo
         } = this.props
-        
         return (
             <Main>
                 <Row noGutters='true' className='min-vh-100 flex-center'>
@@ -241,40 +215,29 @@ class Register extends Component {
                         <Row noGutters="true" className="h-100 w-100">
                             <Col md="5">
                                 <FormWrapper>
-                                    <FormLabel>Register</FormLabel>
+                                    <FormLabel>Account Login</FormLabel>
                                     <form onSubmit={this.handleSubmit}>
                                         <InputGroup>
                                             <InputLabel>Username</InputLabel>
-                                            <Input
-                                                name="username"
-                                                type="text"
-                                                value = {username}
-                                                onChange = {this.handleUsernameInput}
+                                            <Input 
+                                                name="username" 
+                                                type="text" 
+                                                value={username}
+                                                onChange={this.handleUsernameInput} 
                                                 error={error}
-                                                color="#18A09C"
-                                            />                                            
+                                                color="#0772B8"
+                                                />
                                         </InputGroup>
                                         <InputGroup>
                                             <InputLabel>Password</InputLabel>
-                                            <Input
-                                                name="password"
-                                                type="password"
-                                                value = {password}
-                                                onChange = {this.handlePasswordInput}
+                                            <Input 
+                                                name="password" 
+                                                type="password" 
+                                                value={password}
+                                                onChange={this.handlePasswordInput} 
                                                 error={error}
-                                                color="#18A09C"
-                                            />  
-                                        </InputGroup>
-                                        <InputGroup>
-                                            <InputLabel>Confirm password</InputLabel>
-                                            <Input
-                                                name="confirm-pass"
-                                                type="password"
-                                                value = {confirmPassword}
-                                                onChange = {this.handleConfirmPasswordInput}
-                                                error={error}
-                                                color="#18A09C"
-                                            />
+                                                color="#0772B8"
+                                                />
                                         </InputGroup>
                                         <Alert error={error}>
                                             <b>{errorInfo.title}</b><br></br>{errorInfo.detail}
@@ -282,10 +245,9 @@ class Register extends Component {
                                         <Button
                                             className="btn-block"
                                             variant="primary"
-                                            onClick={this.alert}
                                             type="submit"
                                         >
-                                            {loading ? <LoadingLogo /> : "Sign up"}
+                                           {loading ? <LoadingLogo /> : "Log in"}
                                         </Button>
                                     </form>
                                 </FormWrapper>
@@ -294,7 +256,7 @@ class Register extends Component {
                                 <InfoWrapper>
                                     <Logo>GOMOKU</Logo>
                                     <span>This caro game is a product with our enthusiasm.<br></br>First product that we apply new technology such as React, Redux.<br></br>Made by Tran - Huan</span>
-                                    <LinkWrapper><LinkRouter to="/login"><Link>Already a member? Log in here ...</Link></LinkRouter></LinkWrapper>
+                                    <LinkWrapper><LinkRouter to="/register"><Link>New member? Sign up now ...</Link></LinkRouter></LinkWrapper>
                                     <Image src={process.env.PUBLIC_URL + "/images/characters.svg"} />
                                 </InfoWrapper>
                             </Col>
@@ -306,7 +268,6 @@ class Register extends Component {
         )
     }
 }
-
 const mapStateToProps = state => ({
     loading: state.user.loading,
     error: state.user.error,
@@ -314,12 +275,11 @@ const mapStateToProps = state => ({
 })
 const mapDispatchToProps = dispatch => ({
     clearError: () => dispatch(user_clear_error()),
-    userRegisterBegin: () => dispatch(user_register_begin()),
-    userRegisterSuccess: () => dispatch(user_register_success()),
-    userRegisterFailure: () => dispatch(user_register_failure()),
-    userError: (err) => dispatch(user_error(err))
+    userLoginBegin: () => dispatch(user_login_begin()),
+    userLoginSuccess: (user) => dispatch(user_login_success(user)),
+    userLoginFailure: () => dispatch(user_login_failure()),
+    userError: (err) => dispatch(user_error(err)),
+    roomSetAuthenticate: (bool) => dispatch(room_set_authenticated(bool))
 })
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(Register)
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login)
