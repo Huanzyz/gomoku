@@ -11,7 +11,15 @@ import { getRandomNumber } from '../utils/utils'
 import socketIOClient from "socket.io-client"
 import { list_room_info_success } from './list-room'
 import { rank_info_success } from './rank'
-import { game_start, handle_game_tick, handle_game_assign_turn, game_check_win, game_reset } from './game'
+import { 
+    game_start, 
+    game_tick, 
+    handle_game_assign_turn, 
+    game_check_win, 
+    game_reset, 
+    handle_check_win, 
+    game_switch_turn 
+} from './game'
 import { coordinateToId, getCurrentTime } from '../utils/utils'
 
 export const ROOM_SEARCH_BEGIN = 'ROOM_SEARCH_BEGIN'
@@ -244,23 +252,35 @@ export const initialSocketIO = () => dispatch => {
     })
 
     socket.on('listen-start', data => {
-        if(data === 'go') 
+        if(data === 'go') {
             dispatch(game_start())
             dispatch(game_init_tiles())
+        }
     })
 
     socket.on('listen-move', data => {
-        let tiles = store.getState().game.board.tiles
-        dispatch(handle_game_tick(coordinateToId(data.x, data.y), tiles))
+        // let tiles = store.getState().game.board.tiles
+        // dispatch(handle_game_tick(coordinateToId(data.x, data.y)))
+        let {tiles, turn} = store.getState().game.board
+        let id = coordinateToId(data.x, data.y)
+        console.log('listen-move: ', data)
+        let resTiles = [...tiles]
+        resTiles[id].value = turn
+        dispatch(game_tick(id, resTiles))        
+        dispatch(handle_check_win())
+        dispatch(game_switch_turn())        
+
     })
 
     socket.on('listen-opponent-out-room', data => {
         let play = store.getState().game.play
+        let end = store.getState().game.board.end
         if(play){
-            dispatch(game_check_win(true))
+            dispatch(game_reset())
+            if(!end)
+                dispatch(game_check_win(true))
             dispatch(room_set_info(data))
             dispatch(handle_game_assign_turn())
-            dispatch(game_reset())
         }
     })
     socket.on('listen-message', data => {

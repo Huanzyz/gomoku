@@ -144,6 +144,8 @@ const game = (state = initGame(), action) => {
                 ...state,
                 board: {
                     ...state.board,
+                    win: null,
+                    lastTick: -1,
                     end: false
                 }
             }
